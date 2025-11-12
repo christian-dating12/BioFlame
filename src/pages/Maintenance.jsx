@@ -1,29 +1,28 @@
 import React from "react";
 import Header from "../components/header";
-import Footer from "../components/footer"; // Imported the external Footer component
+import Footer from "../components/footer"; 
 import maintenanceImage from "../assets/maintenance-bg.png";
-// Import image if it is local, otherwise just use a placeholder path
-// import maintenanceBgImage from "../assets/maintenance_background.jpg"; 
+
 
 const COLORS = {
   darkGreen: "#2E3F24",
   mediumGreen: "#A2B29A",
   white: "#FFFFFF",
   lightGold: "#D9C08D",
-  darkRed: "#9E3C36", // Color used for IoT boxes
+  darkRed: "#9E3C36", 
   lightGray: "#E5E5E5",
   darkText: "#23320F",
   footerBackground: "#23320F", 
-  tableHeader: "#D9C08D", // Tan/Gold for table headers
-  tableLightRow: "#F5F5F5", // Light background for table body
-  tableGreenStatus: "#A2B29A", // Green for SAFE status
+  tableHeader: "#D9C08D", 
+  tableLightRow: "#F5F5F5", 
+  tableGreenStatus: "#A2B29A",
 };
 
 // --- IoT Box Component (Reused) ---
 const IoTBox = ({ title, children, isCentered }) => (
     <div 
         style={{
-            width: isCentered ? "60%" : "45%", // Adjust width based on if it's centered
+            width: isCentered ? "60%" : "45%", 
             minWidth: "300px",
             maxWidth: isCentered ? "600px" : "400px",
             display: "flex",
@@ -93,17 +92,12 @@ export default function Maintenance() {
             width: "100%",
             minHeight: "500px", 
             display: "flex",
-            // Center text content horizontally (optional)
             justifyContent: "center", 
             alignItems: "flex-start",
-            padding: "80px 20px",
-            
-            // --- IMAGE INTEGRATION HERE ---
+            padding: "80px 20px",         
             backgroundImage: `linear-gradient(rgba(46, 63, 36, 0.6), rgba(46, 63, 36, 0.6)), url(${maintenanceImage})`,            
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            // --- END IMAGE INTEGRATION ---
-
             boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
             position: "relative",
           }}
@@ -114,7 +108,6 @@ export default function Maintenance() {
               maxWidth: "600px",
               textAlign: "left",
               padding: "20px",
-              // Added dark overlay to the text block for contrast if the image is too bright
               background: "rgba(0,0,0,0.1)", 
               borderRadius: "10px",
               zIndex: 1,

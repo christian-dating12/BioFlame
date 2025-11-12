@@ -1,19 +1,19 @@
 import React from "react";
 import Header from "../components/header";
-import Footer from "../components/footer"; // NEW IMPORT PATH
+import Footer from "../components/footer"; 
 
 const COLORS = {
   darkGreen: "#2E3F24",
   mediumGreen: "#A2B29A",
   tan: "#D9C08D",
-  lightTanBackground: "#F2E8D9", // Cream/tan background color for the page body
+  lightTanBackground: "#F2E8D9", 
   brown: "#704214",
   lightGray: "#E5E5E5",
   darkText: "#23320F",
   footerBackground: "#23320F",
   white: "#FFFFFF",
-  sectionTitle: "#705D40", // Dark brown for the elegant titles
-  digesterBackground: "#705D40", // Dark brown for the Digester Process section
+  sectionTitle: "#705D40",
+  digesterBackground: "#705D40", 
   boxShadowDark: "0 4px 8px rgba(0,0,0,0.2)",
 };
 

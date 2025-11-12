@@ -1,5 +1,6 @@
 import React from "react";
 import Header from "../components/header";
+import backgroundImage from "../assets/home.png"
 // The image import remains commented out to avoid build errors:
 // import backgroundImage from "../assets/bioflame_background.jpg"; 
 
@@ -265,8 +266,10 @@ export default function Home() {
           // REMOVED: paddingTop: "20px",
           
           // Placeholder Background Style
-          backgroundColor: COLORS.lightGray, 
-          // REMOVED: backgroundSize, backgroundPosition, etc.
+          backgroundImage: `url(${backgroundImage})`, 
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
         }}
       >
         <div

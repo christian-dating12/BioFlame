@@ -8,6 +8,7 @@ import Storage from "../database/Storage";
 import Ph from "../database/acidity";
 import Alert from "../database/Alert";
 import Table from "../database/Table";
+import Gasses from "../database/gasses";
 
 
 
@@ -26,6 +27,7 @@ export default function DashboardPage() {
     <Ph />
     <Alert />
     <Table />
+    <Gasses />
 
     </div>
   );

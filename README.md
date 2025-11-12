@@ -48,9 +48,29 @@ Make sure the following are installed:
 - npm or yarn package manager
 
 ### 2️⃣ Clone this Repository
-```bash
 git clone https://github.com/<your-username>/biogas-frontend.git
 cd biogas-frontend
+
+### 3️⃣ Install Dependencies
+npm install
+
+### 4️⃣ Run the Development Server
+\```bash
+npm run dev
+\```
+
+Then open your browser and go to:
+\```
+http://localhost:5173
+\```
+
+---
+
+
+
+
+
+
 
 
 

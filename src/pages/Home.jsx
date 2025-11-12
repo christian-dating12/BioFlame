@@ -1,26 +1,15 @@
 import React from "react";
-import Header from "../components/header";
-import Footer from "../components/footer"; // Imported the external Footer component
+import Header from "../components/header";// Imported the external Footer component
 import backgroundImage from "../assets/home.png"
-// The image import remains commented out to avoid build errors:
-// import backgroundImage from "../assets/bioflame_background.jpg"; 
 
-// Define reusable styles for colors used in the design
 const COLORS = {
-  // --- Colors based on the images ---
-  darkGreen: "#2E3F24", // Mission/Vision dark block, Footer background
-  mediumGreen: "#A2B29A", // Mission/Vision light block, Benefits cards
-  tan: "#D9C08D", // Benefits 02/04
-  
-  // New specific colors based on image_9088f4.png blocks:
-  blockGreen: '#709C66', // Green block color for row 1
-  blockTan: '#F1E0C9', // Tan block color for row 2
-  
-  // New number color: A slightly darker gray
-  numberGray: '#888888', 
-  darkLine: '#333333', // Dark color for lines and text
-
-  // General Text and UI colors
+  darkGreen: "#2E3F24", 
+  mediumGreen: "#A2B29A", 
+  tan: "#D9C08D", 
+  blockGreen: '#709C66', 
+  blockTan: '#F1E0C9', 
+    numberGray: '#888888', 
+  darkLine: '#333333',
   lightGray: "#E5E5E5", 
   darkText: "#23320F",
   white: "#FFFFFF",
@@ -89,7 +78,7 @@ const BenefitCard = ({ number, title, color }) => (
   </div>
 );
 
-// --- Process Step (Rewritten to match image_9093e2.png) ---
+// Process Step 
 
 const ProcessStep = ({ stepNumber, title, description, isLast }) => {
     
@@ -236,20 +225,18 @@ export default function Home() {
           style={{
             padding: "40px 40px 20px 40px", // Reduced bottom padding
             textAlign: 'center',
-            // Removed maxWidth constraint to allow text to expand horizontally
           }}
         >
           <h1
             style={{
-              // Use the dark green font color from the image
               color: COLORS.darkGreen, 
-              fontSize: 50, // Reduced size slightly for single line on common screens
+              fontSize: 50, 
               fontFamily: "'Sorts Mill Goudy', serif",
               lineHeight: "1.2",
               margin: "0 0 10px 0",
               fontWeight: 800,
-              fontStyle: 'italic', // Font style from the image
-              whiteSpace: 'nowrap', // Ensure it stays on one line
+              fontStyle: 'italic', 
+              whiteSpace: 'nowrap', 
             }}
           >
             Farming Meets Future Tech
@@ -271,7 +258,7 @@ export default function Home() {
         <div 
           style={{ 
             width: '100%', 
-            minHeight: '80vh', // Increased height to 80% of viewport height
+            minHeight: '80vh', 
             backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.4)), url(${backgroundImage})`, 
             backgroundSize: "cover",
             backgroundPosition: "center",

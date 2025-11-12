@@ -1,10 +1,20 @@
 import React from 'react';
+// Assuming these logo imports are available
+import BioFlameLogo from "../assets/bioflame-logo.png"; 
+import HirayaLogo from "../assets/hiraya.png";
 
+// Define colors used in the component
 const COLORS = {
+  // Color from the image: Dark Olive Green background
   footerBackground: '#2E3F24', 
+  // Light Gray/White text color
   lightGray: '#E5E5E5', 
+  // Green accent color (same as Navbar active link)
   mediumGreen: '#A2B29A', 
+  // Darker text/logo color for contrast (BioFlame)
   darkText: '#333', 
+  // White color for icons
+  white: '#FFFFFF',
 };
 
 // --- Footer Component ---
@@ -49,9 +59,20 @@ export default function Footer() {
                         height: '60px', 
                         borderRadius: '50%', 
                         backgroundColor: COLORS.lightGray, 
-                        marginRight: '15px' 
+                        marginRight: '15px',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }} 
-                />
+                >
+                    {/* *** CHANGE: BioFlame Logo Image, filling container *** */}
+                    <img 
+                        src={BioFlameLogo} 
+                        alt="BioFlame Logo" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                </div>
                 <div>
                     <h3 style={{ 
                         fontSize: '30px', 
@@ -112,6 +133,7 @@ export default function Footer() {
                 alignItems: 'center', 
                 margin: '10px 0', 
                 textAlign: 'right',
+                // Added padding to the right side of the Hiraya block
                 paddingRight: '10px' 
             }}>
                 <div>
@@ -141,9 +163,20 @@ export default function Footer() {
                         height: '60px', 
                         borderRadius: '50%', 
                         backgroundColor: COLORS.lightGray, 
-                        marginLeft: '15px' 
+                        marginLeft: '15px',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }} 
-                />
+                >
+                    {/* *** CHANGE: Hiraya Logo Image, filling container *** */}
+                    <img 
+                        src={HirayaLogo} 
+                        alt="Hiraya Logo" 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                </div>
             </div>
 
         </footer>

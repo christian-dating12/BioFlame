@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "./Navbar";
-import HamburgerMenu from "./menu"; // Import the new component
+import HamburgerMenu from "./menu";
+import BioFlameLogo from "../assets/bioflame-logo.png"; 
 
 export default function Header() {
   return (
@@ -16,16 +17,26 @@ export default function Header() {
     >
       {/* 1. Left Side: Logo and Name */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        {/* Placeholder Circle */}
+        {/* Logo Image container (Replaces the placeholder circle) */}
         <div
             style={{ 
                 width: '60px', 
                 height: '60px', 
                 borderRadius: '50%', 
-                backgroundColor: '#E5E5E5',
-                marginRight: '5px' 
+                backgroundColor: '#E5E5E5', // Keep the gray background/border look
+                marginRight: '5px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden'
             }} 
-        />
+        >
+            <img 
+                src={BioFlameLogo} 
+                alt="BioFlame Logo" 
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+        </div>
         <h1
           style={{
             color: "#333",
@@ -43,6 +54,7 @@ export default function Header() {
       {/* 2. Center Position: Navbar */}
       <div
         style={{
+          // FIX: Absolute positioning to ensure perfect horizontal centering
           position: "absolute",
           left: "50%",
           top: "50%",

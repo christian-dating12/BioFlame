@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
+export default function DataOverviewComponent({ data }) {
 
   const displayValue =
     data && data.length > 0
@@ -17,11 +17,12 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
         borderRadius: "12px",
         padding: "20px",
         color: "white",
+        marginTop: "40px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "340px", 
+        height: "340px", // Match the height of the original chart (300px + padding/margins)
         boxSizing: "border-box",
       }}
     >
@@ -43,7 +44,7 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
 
       {/* Optional: A label indicating what the number represents */}
       <p style={{ color: "#aaa", marginTop: "10px" }}>
-        Latest Recorded Value ({filterPeriod})
+        Latest Recorded Value
       </p>
     </div>
   );

@@ -1,15 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient"; 
 
-export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
-  // Determine the value to display.
-  // We'll display the 'value' from the last item in the array,
-  // or a default of 0 if the data is empty or invalid.
+export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      setLoading(true);
+      setError(null);
+      
+      // Querying the 'slurrylog' table with 'weight' column
+      const { data: fetchedData, error } = await supabase
+        .from('slurrylog') // Using 'slurrylog' table name
+        .select('weight, timestamp, transact_type') // Using 'weight' column
+        .eq('transact_type', 'IN') 
+        .order('timestamp', { ascending: false })
+        .limit(1); 
+
+      if (error) {
+        console.error("Error fetching slurry data:", error); 
+        setError("Failed to load data.");
+      } else {
+        setData(fetchedData); 
+      }
+      setLoading(false);
+    }
+
+    fetchData();
+    
+  }, [filterPeriod, selectedDate]);
+
+
+  // Access the corrected column: 'weight'
   const displayValue =
-    data && data.length > 0
-      ? data[data.length - 1].value
-      : 0;
+    data && data.length > 0 && data[0].weight !== undefined
+      ? data[0].weight
+      : 0; 
 
-  // Function to format the number (optional: adding units or precision)
   const formattedValue = typeof displayValue === 'number' ? displayValue.toFixed(2) : displayValue;
 
   return (
@@ -31,19 +60,20 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
         Last Slurry Input
       </h3>
       
-      {/* Container for the large number */}
+      {loading && <div style={{ color: "#6C8E3E" }}>Loading...</div>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      
       <div
         style={{
-          fontSize: "6em", // Large font size for impact
+          fontSize: "6em", 
           fontWeight: "bold",
-          color: "#6C8E3E", // Use the original line stroke color for the number
+          color: "#6C8E3E", 
           lineHeight: "1.2",
         }}
       >
         {formattedValue}
       </div>
 
-      {/* Optional: A label indicating what the number represents */}
       <p style={{ color: "#aaa", marginTop: "10px" }}>
         Latest Recorded Value ({filterPeriod})
       </p>

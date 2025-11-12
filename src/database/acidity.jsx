@@ -1,13 +1,44 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient"; 
 
-export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
+// Mapping confirmed sensor ID for pH Level
+const PH_SENSOR_ID = 'PH-01'; 
 
-  const displayValue =
-    data && data.length > 0
-      ? data[data.length - 1].value
-      : 0;
+export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
+  const [displayValue, setDisplayValue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Function to format the number (optional: adding units or precision)
+  useEffect(() => {
+    async function getPhLevel() {
+      setLoading(true);
+      setError(null);
+      
+      const { data, error } = await supabase
+        .from('sensorreading') // Targeting the sensorreading table
+        .select('value, timestamp')
+        .eq('sensor_id', PH_SENSOR_ID) // Filtering for the PH-01 sensor
+        .order('timestamp', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error("Supabase Error fetching pH Level data:", error);
+        setError("Data failed to load.");
+        setDisplayValue(0);
+      } else {
+        // Find the latest value and explicitly parse it as a float
+        const rawValue = data && data.length > 0 ? data[0].value : 0;
+        const latestValue = parseFloat(rawValue); 
+        
+        // Handle NaN/Invalid parse by falling back to 0
+        setDisplayValue(isNaN(latestValue) ? 0 : latestValue);
+      }
+      setLoading(false);
+    }
+    getPhLevel();
+  }, [filterPeriod, selectedDate]);
+
+  // Function to format the number
   const formattedValue = typeof displayValue === 'number' ? displayValue.toFixed(2) : displayValue;
 
   return (
@@ -29,12 +60,15 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
         pH Level
       </h3>
       
+      {loading && <div style={{ color: "#6C8E3E" }}>Loading...</div>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      
       {/* Container for the large number */}
       <div
         style={{
-          fontSize: "6em", // Large font size for impact
+          fontSize: "6em", 
           fontWeight: "bold",
-          color: "#6C8E3E", // Use the original line stroke color for the number
+          color: "#6C8E3E", 
           lineHeight: "1.2",
         }}
       >

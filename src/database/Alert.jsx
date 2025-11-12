@@ -1,14 +1,39 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient"; 
 
-export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
+export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
+  // Use state to hold the count of active alerts
+  const [alertCount, setAlertCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // The value is displayed as an integer count, so we format it to 0 decimals.
+  const formattedValue = alertCount.toFixed(0); 
 
-  const displayValue =
-    data && data.length > 0
-      ? data[data.length - 1].value
-      : 0;
+  useEffect(() => {
+    async function getAlertCount() {
+      setLoading(true);
+      setError(null);
+      
+      // Querying the 'alertlog' table for the count of alerts where status is 'New'
+      const { count, error } = await supabase
+        .from('alertlog') // Targeting the alertlog table
+        .select('*', { count: 'exact', head: true }) // Request exact count without fetching data
+        .eq('status', 'New'); // Filtering for alerts with the status 'New'
 
-  // Function to format the number (optional: adding units or precision)
-  const formattedValue = typeof displayValue === 'number' ? displayValue.toFixed(2) : displayValue;
+      if (error) {
+        console.error("Supabase Error fetching Alert Count:", error);
+        setError("Failed to load alert data.");
+        setAlertCount(0);
+      } else {
+        // If count is null, default to 0
+        setAlertCount(count || 0); 
+      }
+      setLoading(false);
+    }
+    getAlertCount();
+  }, [filterPeriod, selectedDate]);
+
 
   return (
     <div
@@ -26,15 +51,19 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
       }}
     >
       <h3 style={{ marginBottom: "20px", textAlign: "center", color: "#ccc" }}>
-        Alert
+        Active Alerts
       </h3>
       
-      {/* Container for the large number */}
+      {loading && <div style={{ color: "#6C8E3E" }}>Loading...</div>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
+      
+      {/* Container for the large number (Alert Count) */}
       <div
         style={{
-          fontSize: "6em", // Large font size for impact
+          fontSize: "6em", 
           fontWeight: "bold",
-          color: "#6C8E3E", // Use the original line stroke color for the number
+          // Use Red if there are alerts, Green if zero
+          color: alertCount > 0 ? "#A3362E" : "#6C8E3E", 
           lineHeight: "1.2",
         }}
       >
@@ -43,7 +72,7 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
 
       {/* Optional: A label indicating what the number represents */}
       <p style={{ color: "#aaa", marginTop: "10px" }}>
-        Latest Recorded Value ({filterPeriod})
+        Current Issues ({filterPeriod})
       </p>
     </div>
   );

@@ -7,6 +7,9 @@ import Temperature from "../database/Temperature";
 import Storage from "../database/Storage";
 import Ph from "../database/acidity";
 import Alert from "../database/Alert";
+import Table from "../database/Table";
+
+
 
 
 
@@ -22,6 +25,7 @@ export default function DashboardPage() {
     <Storage />
     <Ph />
     <Alert />
+    <Table />
 
     </div>
   );

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 // Sample data structure to match the image
-const slurryData = [
+const initialSlurryData = [
   {
     batchID: '101',
     inputDate: '2025-10-12 08:00 AM',
@@ -22,9 +22,23 @@ const slurryData = [
   },
 ];
 
-const SlurryManagementTable = ({ data = slurryData }) => {
-  // *** NEW: State to manage the selected filter period ***
-  const [filterPeriod, setFilterPeriod] = useState('Weekly');
+const SlurryManagementTable = ({ externalData }) => {
+    // Use internal state for editable data, initialized with either external or mock data
+    const [tableData, setTableData] = useState(externalData && externalData.length > 0 ? externalData : initialSlurryData);
+    const [filterPeriod, setFilterPeriod] = useState('Weekly');
+    
+    // Handler to update the weight/volume when the input changes
+    const handleWeightChange = (e, batchID) => {
+        const newValue = e.target.value;
+        setTableData(prevData =>
+            prevData.map(item =>
+                item.batchID === batchID
+                    ? { ...item, weightVolume: newValue }
+                    : item
+            )
+        );
+    };
+
 
   // Helper function to render the Status pill based on the status text
   const renderStatus = (status, detail) => {
@@ -61,11 +75,7 @@ const SlurryManagementTable = ({ data = slurryData }) => {
     );
   };
 
-  // *** Placeholder for filtering logic ***
-  // In a real application, you would filter the 'data' array here
-  // based on the 'filterPeriod' state before rendering the table body.
-  // const filteredData = data.filter(item => /* filtering logic based on filterPeriod */);
-  const filteredData = data; 
+  const filteredData = tableData; 
 
   return (
     <div
@@ -78,7 +88,7 @@ const SlurryManagementTable = ({ data = slurryData }) => {
       }}
     >
       
-      {/* *** NEW: Header with Filter Dropdown *** */}
+      {/* Header with Filter Dropdown */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
@@ -148,7 +158,25 @@ const SlurryManagementTable = ({ data = slurryData }) => {
             >
               <td style={{ padding: '15px 0', fontWeight: 'bold', color: '#333' }}>{item.batchID}</td>
               <td style={{ padding: '15px 10px', color: '#333' }}>{item.inputDate}</td>
-              <td style={{ padding: '15px 10px', color: '#333' }}>{item.weightVolume}</td>
+              
+              {/* *** NEW: EDITABLE INPUT FIELD *** */}
+              <td style={{ padding: '10px' }}>
+                <input
+                    type="number"
+                    value={item.weightVolume}
+                    onChange={(e) => handleWeightChange(e, item.batchID)}
+                    style={{
+                        width: 'calc(100% - 10px)',
+                        padding: '5px',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        fontSize: '14px',
+                        textAlign: 'center',
+                        color: '#333',
+                    }}
+                />
+              </td>
+              
               <td style={{ padding: '15px 10px', color: '#333' }}>{item.targetReleaseDate}</td>
               <td style={{ padding: '15px 10px', fontWeight: item.daysRemaining < 0 ? 'bold' : 'normal', color: '#333' }}>
                 {item.daysRemaining}

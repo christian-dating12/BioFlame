@@ -1,4 +1,3 @@
-// src/components/LineChartComponent.jsx
 import React from "react";
 import {
   LineChart,
@@ -11,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function LineChartComponent({ data }) {
+export default function RawGas({ data }) {
   // If no data is passed, show placeholder data
   const sampleData =
     data && data.length > 0
@@ -35,7 +34,7 @@ export default function LineChartComponent({ data }) {
       }}
     >
       <h3 style={{ marginBottom: "20px", textAlign: "center" }}>
-        System Data Overview
+        Raw Gas Quality Overview
       </h3>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={sampleData}>

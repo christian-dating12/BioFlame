@@ -1,6 +1,6 @@
 import React from "react";
 import Header from "../components/header";
-import LineChartComponent from "../components/LineChartComponent";
+import LineChartComponent from "../Graphs/Stored-Gas-Graph";
 import Slurry from "../database/Slurry";
 import Retention from "../database/Retention";
 import Temperature from "../database/Temperature";
@@ -23,6 +23,7 @@ const ChartPlaceholder = ({ title }) => (
         flexDirection: 'column',
         alignItems: "center", 
         justifyContent: "center",
+        
       }}
     >
         <h3 style={{ color: "#ccc", margin: '0 0 10px 0' }}>{title}</h3>
@@ -37,7 +38,7 @@ const ChartPlaceholder = ({ title }) => (
 export default function DashboardPage() {
   return (
     // Outer container for the whole dashboard: Light gray body background, full width.
-    <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 20px', color: '#333', backgroundColor: '#EFEFEF', minHeight: '100vh' }}>
+    <div style={{ width: "100%", margin: '0 auto', color: '#333', backgroundColor: '#EFEFEF', minHeight: '100vh' }}>
       <Header />
       
       {/* Dark Header/Title Bar Placeholder (Matching the screenshot) */}
@@ -84,10 +85,10 @@ export default function DashboardPage() {
 
       {/* 5. Final Charts Row (Four small charts) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginTop: "40px", padding: '20px 0' }}>
-        <ChartPlaceholder title="Temperature" /> 
-        <ChartPlaceholder title="pH Level" />
-        <ChartPlaceholder title="Gas Storage" />
-        <ChartPlaceholder title="Digester" />
+        <LineChartComponent title="Temperature" /> 
+        <LineChartComponent title="pH Level" />
+        <LineChartComponent title="Gas Storage" />
+        <LineChartComponent title="Digester" />
       </div>
 
     </div>

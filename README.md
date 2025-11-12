@@ -78,6 +78,7 @@ src/
  │       ├─ Button.jsx
  │       ├─ Card.jsx
  │       └─ Input.jsx
+ |   ├─ database
  ├─ pages/              # Pages
  │   ├─ Home.jsx
  │   ├─ Maintenance.jsx

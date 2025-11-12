@@ -8,6 +8,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Brush, // Added for zoom
 } from "recharts";
 
 export default function StoredGasGraph({ data, filterPeriod, selectedDate }) {
@@ -49,6 +50,12 @@ export default function StoredGasGraph({ data, filterPeriod, selectedDate }) {
           <YAxis stroke="#ccc" />
           <Tooltip />
           <Legend />
+          <Brush // Zoom/Pan component added
+              dataKey="name" 
+              height={30} 
+              stroke="#6C8E3E" 
+              fill="#2E3F24"  
+          />
           <Line
             type="monotone"
             dataKey="value"

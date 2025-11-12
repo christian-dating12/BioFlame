@@ -1,14 +1,9 @@
 import React from 'react';
 
-// Define colors used in the component
 const COLORS = {
-  // Color from the image: Dark Olive Green background
   footerBackground: '#2E3F24', 
-  // Light Gray/White text color
   lightGray: '#E5E5E5', 
-  // Green accent color (same as Navbar active link)
   mediumGreen: '#A2B29A', 
-  // Darker text/logo color for contrast (BioFlame)
   darkText: '#333', 
 };
 
@@ -117,7 +112,6 @@ export default function Footer() {
                 alignItems: 'center', 
                 margin: '10px 0', 
                 textAlign: 'right',
-                // Added padding to the right side of the Hiraya block
                 paddingRight: '10px' 
             }}>
                 <div>

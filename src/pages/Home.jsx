@@ -586,7 +586,6 @@ export default function Home() {
         </div>
       </div>
       
-      {/* 5. FOOTER */}
       <Footer />
     </div>
   );

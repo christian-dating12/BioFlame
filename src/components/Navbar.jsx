@@ -11,10 +11,9 @@ export default function Navbar() {
     Dashboard: "/dashboard",
   };
 
-  // Define colors based on the image
-  const outerColor = "#2E3F24"; // Dark Green/Olive for the navbar background
-  const activeColor = "#6C8E3E"; // Lighter Green for the active button
-  const hoverColor = "#556A3D"; // Slightly lighter dark green for hover
+  const outerColor = "#2E3F24"; 
+  const activeColor = "#6C8E3E"; 
+  const hoverColor = "#556A3D"; 
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 15 }}>

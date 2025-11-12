@@ -301,7 +301,6 @@ export default function Maintenance() {
         </div>
       </div>
 
-      {/* 5. FOOTER (Updated to use the imported component) */}
       <Footer />
     </div>
   );

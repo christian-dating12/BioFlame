@@ -308,7 +308,6 @@ export default function Documentation() {
         </div>
       </div>
       
-      {/* 4. FOOTER (Updated to use the imported component) */}
       <Footer />
     </div>
   );

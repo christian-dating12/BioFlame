@@ -10,7 +10,6 @@ export default function Header() {
         alignItems: "center",
         justifyContent: "space-between",
         marginBottom: 40,
-        // Increased right padding from 20px to 40px
         padding: "10px 40px", 
         position: "relative",
       }}
@@ -44,7 +43,6 @@ export default function Header() {
       {/* 2. Center Position: Navbar */}
       <div
         style={{
-          // FIX: Absolute positioning to ensure perfect horizontal centering
           position: "absolute",
           left: "50%",
           top: "50%",

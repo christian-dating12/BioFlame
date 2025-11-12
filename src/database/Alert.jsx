@@ -17,12 +17,11 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
         borderRadius: "12px",
         padding: "20px",
         color: "white",
-        // Removed: marginTop: "40px"
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        height: "340px", // Match the height of the original chart (300px + padding/margins)
+        height: "340px", 
         boxSizing: "border-box",
       }}
     >

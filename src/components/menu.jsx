@@ -22,7 +22,7 @@ export default function HamburgerMenu() {
                     height: 25,
                     cursor: "pointer",
                     margin: '0 10px',
-                    zIndex: 20, // Ensure it sits above other content
+                    zIndex: 20, 
                 }}
             >
                 <span style={{ height: 4, background: COLORS.activeGreen, borderRadius: 2 }} />

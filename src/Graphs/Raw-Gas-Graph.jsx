@@ -8,9 +8,10 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  Brush, // Added for zoom
 } from "recharts";
 
-export default function StoredGasGraph({ data, filterPeriod, selectedDate }) {
+export default function RawGasGraph({ data, filterPeriod, selectedDate }) {
   // If no data is passed, show placeholder data
   const sampleData =
     data && data.length > 0
@@ -39,7 +40,7 @@ export default function StoredGasGraph({ data, filterPeriod, selectedDate }) {
         marginBottom: '20px', 
       }}>
         <h3 style={{ margin: 0, textAlign: "left", color: 'white' }}>
-          Stored Gas Quality Overview (Viewing: {filterPeriod})
+          Raw Gas Quality Overview (Viewing: {filterPeriod})
         </h3>
       </div>
       <ResponsiveContainer width="100%" height={300}>
@@ -49,6 +50,12 @@ export default function StoredGasGraph({ data, filterPeriod, selectedDate }) {
           <YAxis stroke="#ccc" />
           <Tooltip />
           <Legend />
+          <Brush // Zoom/Pan component added
+              dataKey="name" 
+              height={30} 
+              stroke="#6C8E3E" 
+              fill="#2E3F24"  
+          />
           <Line
             type="monotone"
             dataKey="value"

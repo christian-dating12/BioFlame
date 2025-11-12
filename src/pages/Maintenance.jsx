@@ -1,7 +1,9 @@
 import React from "react";
 import Header from "../components/header";
-import Footer from "../components/footer"; 
+import Footer from "../components/footer"; // Imported the external Footer component
 import maintenanceImage from "../assets/maintenance-bg.png";
+// Import image if it is local, otherwise just use a placeholder path
+// import maintenanceBgImage from "../assets/maintenance_background.jpg"; 
 
 const COLORS = {
   darkGreen: "#2E3F24",
@@ -21,7 +23,7 @@ const COLORS = {
 const IoTBox = ({ title, children, isCentered }) => (
     <div 
         style={{
-            width: isCentered ? "60%" : "45%", 
+            width: isCentered ? "60%" : "45%", // Adjust width based on if it's centered
             minWidth: "300px",
             maxWidth: isCentered ? "600px" : "400px",
             display: "flex",

@@ -16,23 +16,27 @@ export default function DataOverviewComponent({ filterPeriod }) {
       setError(null);
       
       const { data, error } = await supabase
-        .from('sensorreading') 
+        .from('sensorreading') // Targeting the sensorreading table
         .select('value, timestamp')
-        .eq('sensor_id', TEMPERATURE_SENSOR_ID) 
-        .order('timestamp', { ascending: false }) 
-        .limit(5); 
+        .eq('sensor_id', TEMPERATURE_SENSOR_ID) // Filtering for the T-01 sensor
+        .order('timestamp', { ascending: false }) // Ensures newest data is fetched first
+        .limit(5); // Fetch top 5 records to skip potential NULL entries
 
       if (error) {
         console.error("Supabase Error fetching Temperature data:", error);
         setError("Data failed to load.");
         setDisplayValue(0);
       } else {
+        // Find the first record with a non-null value for robustness
         const firstValidRecord = data.find(item => item.value !== null);
 
+        // Extract the value, defaulting to 0 if no valid record is found
         const rawValue = firstValidRecord ? firstValidRecord.value : 0;
         
+        // Explicitly parse the raw value as a float
         const latestValue = parseFloat(rawValue); 
         
+        // Handle NaN/Invalid parse by falling back to 0
         setDisplayValue(isNaN(latestValue) ? 0 : latestValue);
       }
       setLoading(false);
@@ -51,6 +55,7 @@ export default function DataOverviewComponent({ filterPeriod }) {
         borderRadius: "12px",
         padding: "20px",
         color: "white",
+        marginTop: "40px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -78,9 +83,9 @@ export default function DataOverviewComponent({ filterPeriod }) {
         {formattedValue}
       </div>
 
-      {/* FIX 2: Added filterPeriod to the display text */}
+      {/* Optional: A label indicating what the number represents */}
       <p style={{ color: "#aaa", marginTop: "10px" }}>
-        Latest Recorded Value ({filterPeriod})
+        Latest Recorded Value
       </p>
     </div>
   );

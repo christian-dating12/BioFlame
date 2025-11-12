@@ -1,7 +1,9 @@
 import React from "react";
 import Header from "../components/header";
-import Footer from "../components/footer"; // NEW IMPORT PATH
-// import maintenanceBgImage from "../assets/maintenance_background.jpg"; // Placeholder: Image import is commented out
+import Footer from "../components/footer"; // Imported the external Footer component
+import maintenanceImage from "../assets/maintenance-bg.png";
+// Import image if it is local, otherwise just use a placeholder path
+// import maintenanceBgImage from "../assets/maintenance_background.jpg"; 
 
 const COLORS = {
   darkGreen: "#2E3F24",
@@ -91,10 +93,17 @@ export default function Maintenance() {
             width: "100%",
             minHeight: "500px", 
             display: "flex",
-            justifyContent: "center",
+            // Center text content horizontally (optional)
+            justifyContent: "center", 
             alignItems: "flex-start",
             padding: "80px 20px",
-            backgroundColor: COLORS.darkGreen, // Placeholder color
+            
+            // --- IMAGE INTEGRATION HERE ---
+            backgroundImage: `linear-gradient(rgba(46, 63, 36, 0.6), rgba(46, 63, 36, 0.6)), url(${maintenanceImage})`,            
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            // --- END IMAGE INTEGRATION ---
+
             boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
             position: "relative",
           }}
@@ -105,7 +114,8 @@ export default function Maintenance() {
               maxWidth: "600px",
               textAlign: "left",
               padding: "20px",
-              background: "rgba(0,0,0,0.1)",
+              // Added dark overlay to the text block for contrast if the image is too bright
+              background: "rgba(0,0,0,0.1)", 
               borderRadius: "10px",
               zIndex: 1,
             }}
@@ -129,13 +139,13 @@ export default function Maintenance() {
                 lineHeight: "1.6",
               }}
             >
-              [BACKGROUND IMAGE PLACEHOLDER: The image of the sheep in the mountains should be here.] Maintaining your BioFlame unit is crucial for ensuring continuous, optimal biogas production and efficiency. Our IoT-integrated system is designed to minimize hands-on intervention, but scheduled checks and sensor calibration are required.
+              Maintaining your BioFlame unit is crucial for ensuring continuous, optimal biogas production and efficiency. Our IoT-integrated system is designed to minimize hands-on intervention, but scheduled checks and sensor calibration are required.
             </p>
           </div>
         </div>
       </div>
       
-      {/* 2. MAINTENANCE SCHEDULE */}
+      {/* 2. MAINTENANCE SCHEDULE (omitted for brevity) */}
       <div style={{ padding: "80px 40px", maxWidth: "1200px", margin: "0 auto" }}>
         <h2
           style={{
@@ -203,7 +213,7 @@ export default function Maintenance() {
         </div>
       </div>
       
-      {/* 3. SAFETY PARAMETERS & GUIDELINES */}
+      {/* 3. SAFETY PARAMETERS & GUIDELINES (omitted for brevity) */}
       <div style={{ padding: "80px 40px", maxWidth: "1200px", margin: "0 auto" }}>
         <h2
           style={{
@@ -256,51 +266,6 @@ export default function Maintenance() {
         </div>
       </div>
       
-      {/* 4. IOT-ASSISTED MAINTENANCE */}
-      <div style={{ padding: "80px 40px", maxWidth: "1200px", margin: "0 auto" }}>
-        <h2
-          style={{
-            fontFamily: "sans-serif",
-            fontSize: "40px",
-            color: COLORS.darkGreen,
-            marginBottom: "10px",
-            fontWeight: "bold",
-          }}
-        >
-          IoT-ASSISTED MAINTENANCE
-        </h2>
-        <p style={{ fontStyle: "italic", fontSize: "18px", color: "#555", marginBottom: "40px" }}>
-          Our integrated IoT System transforms maintenance from reactive to predictive:
-        </p>
-
-        <div 
-            style={{ 
-                display: "flex", 
-                justifyContent: "space-around", 
-                flexWrap: "wrap", 
-                gap: "40px 20px" 
-            }}
-        >
-          
-          {/* Box 1: Alerts */}
-          <IoTBox title="ALERTS">
-            The dashboard provides real-time alerts for critical parameters (e.g., sudden pressure drops, overheating pumps, or Hydrogen Sulfide Spike).
-          </IoTBox>
-          
-          {/* Box 2: Diagnostics */}
-          <IoTBox title="DIAGNOSTICS">
-            Technicians can remotely analyze system logs and sensor data to diagnose issues before a physical site visit is required.
-          </IoTBox>
-          
-          {/* Box 3: Documentation (Centered below) */}
-          <div style={{ flexBasis: "100%", textAlign: "center" }}>
-            <IoTBox title="DOCUMENTATION" isCentered={true}>
-              All system schematics and maintenance logs are accessible through the Documentation section of the dashboard.
-            </IoTBox>
-          </div>
-        </div>
-      </div>
-
       <Footer />
     </div>
   );

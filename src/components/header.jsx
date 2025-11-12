@@ -9,7 +9,8 @@ export default function Header() {
         alignItems: "center",
         justifyContent: "space-between",
         marginBottom: 40,
-        padding: "0 20px",
+        padding: "10 40px",
+        position: "reelative",
       }}
     >
       {/* Logos */}
@@ -50,9 +51,13 @@ export default function Header() {
           </h1>
         </div>
       </div>
-
       {/* Navbar */}
-      <div style={{ transform: "translateX(-20px)" }}>
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          transform: "translateX(-50%)",
+        }}>
         <Navbar />
       </div>
     </header>

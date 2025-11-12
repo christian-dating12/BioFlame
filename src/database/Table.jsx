@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React, { useState } from 'react';
 // Sample data structure to match the image
 const slurryData = [
   {
@@ -23,6 +22,7 @@ const slurryData = [
 ];
 
 const SlurryManagementTable = ({ data = slurryData }) => {
+  const [filterPeriod, setFilterPeriod] = useState('Weekly');
 
   // Helper function to render the Status pill based on the status text
   const renderStatus = (status, detail) => {
@@ -58,6 +58,7 @@ const SlurryManagementTable = ({ data = slurryData }) => {
       </div>
     );
   };
+  const filteredData = data;
 
   return (
     <div
@@ -69,9 +70,39 @@ const SlurryManagementTable = ({ data = slurryData }) => {
         margin: '20px 0', 
       }}
     >
+      <div style={{
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '25px',
+      }}>
+
+      </div>
       <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '25px' }}>
         Slurry Management Table
       </h2>
+
+      <select
+      value={filterPeriod}
+          onChange={(e) => setFilterPeriod(e.target.value)}
+          style={{
+            padding: '8px 15px',
+            borderRadius: '6px',
+            backgroundColor: '#6C8E3E', // Green background matching the theme
+            color: 'white',
+            border: 'none',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            cursor: 'pointer',
+            appearance: 'none', // Remove default dropdown arrow
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='white' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 10px center',
+            backgroundSize: '20px',
+            paddingRight: '35px', // Make space for the custom arrow
+          }}>
+        
+      </select>
 
       <table
         style={{

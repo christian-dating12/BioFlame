@@ -55,10 +55,9 @@ cd biogas-frontend
 npm install
 
 ### 4️⃣ Run the Development Server
-\```bash
 npm run dev
-\```
 
+---
 Then open your browser and go to:
 \```
 http://localhost:5173

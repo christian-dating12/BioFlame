@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+
 // Sample data structure to match the image
 const slurryData = [
   {
@@ -22,6 +23,7 @@ const slurryData = [
 ];
 
 const SlurryManagementTable = ({ data = slurryData }) => {
+  // *** NEW: State to manage the selected filter period ***
   const [filterPeriod, setFilterPeriod] = useState('Weekly');
 
   // Helper function to render the Status pill based on the status text
@@ -58,7 +60,12 @@ const SlurryManagementTable = ({ data = slurryData }) => {
       </div>
     );
   };
-  const filteredData = data;
+
+  // *** Placeholder for filtering logic ***
+  // In a real application, you would filter the 'data' array here
+  // based on the 'filterPeriod' state before rendering the table body.
+  // const filteredData = data.filter(item => /* filtering logic based on filterPeriod */);
+  const filteredData = data; 
 
   return (
     <div
@@ -70,20 +77,20 @@ const SlurryManagementTable = ({ data = slurryData }) => {
         margin: '20px 0', 
       }}
     >
-      <div style={{
+      
+      {/* *** NEW: Header with Filter Dropdown *** */}
+      <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '25px',
+        marginBottom: '25px', 
       }}>
-
-      </div>
-      <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '25px' }}>
-        Slurry Management Table
-      </h2>
-
-      <select
-      value={filterPeriod}
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, color: 'white' }}>
+          Slurry Management Table
+        </h2>
+        
+        <select
+          value={filterPeriod}
           onChange={(e) => setFilterPeriod(e.target.value)}
           style={{
             padding: '8px 15px',
@@ -100,9 +107,14 @@ const SlurryManagementTable = ({ data = slurryData }) => {
             backgroundPosition: 'right 10px center',
             backgroundSize: '20px',
             paddingRight: '35px', // Make space for the custom arrow
-          }}>
-        
-      </select>
+          }}
+        >
+          <option value="Weekly">Weekly</option>
+          <option value="Monthly">Monthly</option>
+          <option value="Quarterly">Quarterly</option>
+          <option value="Yearly">Yearly</option>
+        </select>
+      </div>
 
       <table
         style={{
@@ -114,7 +126,7 @@ const SlurryManagementTable = ({ data = slurryData }) => {
       >
         {/* Table Header */}
         <thead>
-          <tr style={{ borderBottom: '1px solid #E0E0E0', color: '#666', fontWeight: '500' }}>
+          <tr style={{ borderBottom: '1px solid #E0E0E0', color: 'white', fontWeight: '500' }}>
             <th style={{ padding: '12px 0', width: '10%' }}>Batch ID</th>
             <th style={{ padding: '12px 10px', width: '20%' }}>Input Date (Timestamp)</th>
             <th style={{ padding: '12px 10px', width: '15%' }}>Weight/Volume (kg)</th>
@@ -126,20 +138,19 @@ const SlurryManagementTable = ({ data = slurryData }) => {
         
         {/* Table Body */}
         <tbody>
-          {data.map((item, index) => (
+          {filteredData.map((item, index) => (
             <tr
               key={item.batchID}
               style={{
                 borderBottom: '1px solid #F0F0F0',
-                // Updated alternating row color to compensate for the gray background
                 backgroundColor: '#FFFFFF', 
               }}
             >
-              <td style={{ padding: '15px 0', fontWeight: 'bold' }}>{item.batchID}</td>
-              <td style={{ padding: '15px 10px' }}>{item.inputDate}</td>
-              <td style={{ padding: '15px 10px' }}>{item.weightVolume}</td>
-              <td style={{ padding: '15px 10px' }}>{item.targetReleaseDate}</td>
-              <td style={{ padding: '15px 10px', fontWeight: item.daysRemaining < 0 ? 'bold' : 'normal' }}>
+              <td style={{ padding: '15px 0', fontWeight: 'bold', color: '#333' }}>{item.batchID}</td>
+              <td style={{ padding: '15px 10px', color: '#333' }}>{item.inputDate}</td>
+              <td style={{ padding: '15px 10px', color: '#333' }}>{item.weightVolume}</td>
+              <td style={{ padding: '15px 10px', color: '#333' }}>{item.targetReleaseDate}</td>
+              <td style={{ padding: '15px 10px', fontWeight: item.daysRemaining < 0 ? 'bold' : 'normal', color: '#333' }}>
                 {item.daysRemaining}
               </td>
               <td style={{ padding: '15px 10px' }}>

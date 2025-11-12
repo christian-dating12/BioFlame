@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function DataOverviewComponent({ data }) {
+export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
 
   const displayValue =
     data && data.length > 0
@@ -17,7 +17,7 @@ export default function DataOverviewComponent({ data }) {
         borderRadius: "12px",
         padding: "20px",
         color: "white",
-        marginTop: "40px",
+        // Removed: marginTop: "40px"
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -44,7 +44,7 @@ export default function DataOverviewComponent({ data }) {
 
       {/* Optional: A label indicating what the number represents */}
       <p style={{ color: "#aaa", marginTop: "10px" }}>
-        Latest Recorded Value
+        Latest Recorded Value ({filterPeriod})
       </p>
     </div>
   );

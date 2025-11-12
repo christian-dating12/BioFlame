@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-export default function RawGas({ data }) {
+export default function PhLevelGraph({ data, filterPeriod, selectedDate }) {
   // If no data is passed, show placeholder data
   const sampleData =
     data && data.length > 0
@@ -30,12 +30,18 @@ export default function RawGas({ data }) {
         borderRadius: "12px",
         padding: "20px",
         color: "white",
-        marginTop: "40px",
       }}
     >
-      <h3 style={{ marginBottom: "20px", textAlign: "center" }}>
-        pH Level Overview
-      </h3>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginBottom: '20px', 
+      }}>
+        <h3 style={{ margin: 0, textAlign: "left", color: 'white' }}>
+          pH Level Overview (Viewing: {filterPeriod})
+        </h3>
+      </div>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={sampleData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#555" />

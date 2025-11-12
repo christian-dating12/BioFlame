@@ -1,6 +1,6 @@
 import React from 'react';
 
-const GasQualityComponent = ({ rawGas = { ch4: 50, co2: 50 }, storedGas = { ch4: 30, co2: 70 } }) => {
+const GasQualityComponent = ({ rawGas = { ch4: 50, co2: 50 }, storedGas = { ch4: 30, co2: 70 }, filterPeriod, selectedDate }) => {
 
   // Function to determine the width of the bars based on the value
   // Assuming total is 100 for simplicity (percentage)
@@ -13,7 +13,7 @@ const GasQualityComponent = ({ rawGas = { ch4: 50, co2: 50 }, storedGas = { ch4:
         borderRadius: '8px',
         padding: '20px 0', // Vertical padding, horizontal padding handled by internal structure
         maxWidth: '100%',
-        margin: '20px 0', // Spacing from other dashboard elements
+        // Removed: margin: '20px 0', 
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -23,7 +23,7 @@ const GasQualityComponent = ({ rawGas = { ch4: 50, co2: 50 }, storedGas = { ch4:
       }}
     >
       <h3 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '20px', color: '#333' }}>
-        CO2 and CH4
+        CO2 and CH4 ({filterPeriod})
       </h3>
 
       <div

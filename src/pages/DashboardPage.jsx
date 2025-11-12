@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../components/header";
-import LineChartComponent from "../Graphs/Stored-Gas-Graph";
 import Slurry from "../database/Slurry";
 import Retention from "../database/Retention";
 import Temperature from "../database/Temperature";
@@ -10,32 +9,80 @@ import Alert from "../database/Alert";
 import Table from "../database/Table";
 import Gasses from "../database/gasses";
 
-// Reusable dark-themed chart placeholder for the final bottom row
-const ChartPlaceholder = ({ title }) => (
-    <div 
-      style={{ 
-        backgroundColor: "#23320F", 
-        borderRadius: "12px", 
-        padding: "20px", 
-        color: "white", 
-        height: "200px", // Reduced height to fit the screenshot's smaller bottom charts
-        display: "flex", 
-        flexDirection: 'column',
-        alignItems: "center", 
-        justifyContent: "center",
-        
-      }}
-    >
-        <h3 style={{ color: "#ccc", margin: '0 0 10px 0' }}>{title}</h3>
-        {/* Placeholder for the chart visualization */}
-        <div style={{ width: '80%', height: '100px', border: '1px dashed #6C8E3E', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px' }}>
-            [Chart Area]
+// IMPORT ALL GRAPH COMPONENTS (Using Corrected Names)
+import RawGasGraph from "../Graphs/Raw-Gas-Graph";
+import StoredGasGraph from "../Graphs/Stored-Gas-Graph";
+import TempGraph from "../Graphs/Temperature_graph";
+import PhGraph from "../Graphs/Ph-Level-Graph";
+import DigesterGraph from "../Graphs/Digester-Graph";
+import GasStorageGraph from "../Graphs/Gas-Storage-Graph"; 
+
+// --- NEW CENTRALIZED FILTER COMPONENT ---
+const GlobalTimeFilter = ({ filterPeriod, setFilterPeriod, selectedDate, setSelectedDate }) => {
+    const filterOptions = ["Daily", "Weekly", "Monthly", "Yearly"];
+    const accentColor = "#6C8E3E"; // Green accent color
+
+    return (
+        <div style={{ 
+            backgroundColor: '#F8F4E3', // Cream background from palette
+            padding: '20px', 
+            borderRadius: '8px', 
+            margin: '20px 0',
+            display: 'flex',
+            gap: '20px',
+            alignItems: 'center',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+        }}>
+            <h4 style={{ margin: 0, color: '#23320F' }}>View Data By:</h4>
+            
+            {/* 1. Period Dropdown */}
+            <select
+                value={filterPeriod}
+                onChange={(e) => setFilterPeriod(e.target.value)}
+                style={{
+                    padding: '8px 15px',
+                    borderRadius: '6px',
+                    backgroundColor: accentColor,
+                    color: 'white',
+                    border: 'none',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    appearance: 'none',
+                }}
+            >
+                {filterOptions.map(option => (
+                    <option key={option} value={option}>{option}</option>
+                ))}
+            </select>
+
+            {/* 2. Specific Date/Week Search/Input */}
+            <input
+                // Set input type to 'date' only when 'Daily' is selected for native picker
+                type={filterPeriod === 'Daily' ? 'date' : 'text'} 
+                placeholder={`Select a specific ${filterPeriod.toLowerCase()} (${filterPeriod === 'Daily' ? 'YYYY-MM-DD' : 'e.g., Week 45 / 2025-11'})`}
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                style={{
+                    padding: '8px 15px',
+                    borderRadius: '6px',
+                    border: `1px solid ${accentColor}`,
+                    fontSize: '14px',
+                    flex: 1,
+                    maxWidth: '300px',
+                    color: '#23320F'
+                }}
+            />
         </div>
-    </div>
-);
+    );
+};
 
 
 export default function DashboardPage() {
+    // *** NEW STATE: Global Filter States ***
+    const [filterPeriod, setFilterPeriod] = useState('Weekly');
+    const [selectedDate, setSelectedDate] = useState('');
+
   return (
     // Outer container for the whole dashboard: Light gray body background, full width.
     <div style={{ width: "100%", margin: '0 auto', color: '#333', backgroundColor: '#EFEFEF', minHeight: '100vh' }}>
@@ -56,39 +103,47 @@ export default function DashboardPage() {
         {/* Navigation/Menu placeholder here if necessary */}
       </div>
 
-      {/* 1. First Row: Four Summary Cards (Slurry, Storage, Retention, Alert) */}
+      {/* --- GLOBAL FILTER UI --- */}
+      <GlobalTimeFilter 
+          filterPeriod={filterPeriod} 
+          setFilterPeriod={setFilterPeriod}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+      />
+      {/* ------------------------------- */}
+
+
+      {/* 1. First Row: Four Summary Cards (Numeric components updated to accept filter props) */}
       <div style={{ display: "flex", gap: "20px", margin: "20px 0" }}>
-        {/* Note: Components have internal top margin, removed here for tight fit */}
-        <div style={{ flex: 1 }}><Slurry /></div>
-        <div style={{ flex: 1 }}><Storage /></div>
-        <div style={{ flex: 1 }}><Retention /></div>
-        <div style={{ flex: 1 }}><Alert /></div>
+        {/* All numeric cards now receive filter props */}
+        <div style={{ flex: 1 }}><Slurry filterPeriod={filterPeriod} selectedDate={selectedDate} /></div>
+        <div style={{ flex: 1 }}><Storage filterPeriod={filterPeriod} selectedDate={selectedDate} /></div>
+        <div style={{ flex: 1 }}><Retention filterPeriod={filterPeriod} selectedDate={selectedDate} /></div>
+        <div style={{ flex: 1 }}><Alert filterPeriod={filterPeriod} selectedDate={selectedDate} /></div>
       </div>
       
       {/* 2. Second Row: Three components (Temperature, Gasses, pH) */}
       <div style={{ display: "flex", gap: "20px", marginBottom: "40px" }}>
-        <div style={{ flex: 1 }}><Temperature /></div>
-        {/* Gas Quality is full width to fit both the bar chart and ratio text */}
-        <div style={{ flex: 2 }}><Gasses /></div>
-        <div style={{ flex: 1 }}><Ph /></div>
+        <div style={{ flex: 1 }}><Temperature filterPeriod={filterPeriod} selectedDate={selectedDate} /></div>
+        <div style={{ flex: 2 }}><Gasses filterPeriod={filterPeriod} selectedDate={selectedDate} /></div>
+        <div style={{ flex: 1 }}><Ph filterPeriod={filterPeriod} selectedDate={selectedDate} /></div>
       </div>
 
       {/* 3. Slurry Management Table (Full Width) */}
-      <Table />
+      <Table /> 
 
-      {/* 4. Gas Quality Charts (Raw Gas and Storage Gas) - Placed directly below the table */}
+      {/* 4. Gas Quality Charts (Raw Gas and Storage Gas) - PASS GLOBAL FILTER PROPS */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px", marginTop: "20px" }}>
-        {/* Using the LineChartComponent for raw data visualization as per Time.png's lower section */}
-        <LineChartComponent title="Raw Gas Quality" /> 
-        <LineChartComponent title="Storage Gas Quality" />
+        <RawGasGraph filterPeriod={filterPeriod} selectedDate={selectedDate} /> 
+        <StoredGasGraph filterPeriod={filterPeriod} selectedDate={selectedDate} />
       </div>
 
-      {/* 5. Final Charts Row (Four small charts) */}
+      {/* 5. Final Charts Row (Four small charts) - PASS GLOBAL FILTER PROPS */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginTop: "40px", padding: '20px 0' }}>
-        <LineChartComponent title="Temperature" /> 
-        <LineChartComponent title="pH Level" />
-        <LineChartComponent title="Gas Storage" />
-        <LineChartComponent title="Digester" />
+        <TempGraph filterPeriod={filterPeriod} selectedDate={selectedDate} /> 
+        <PhGraph filterPeriod={filterPeriod} selectedDate={selectedDate} />
+        <GasStorageGraph filterPeriod={filterPeriod} selectedDate={selectedDate} />
+        <DigesterGraph filterPeriod={filterPeriod} selectedDate={selectedDate} />
       </div>
 
     </div>

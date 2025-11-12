@@ -4,6 +4,9 @@ import LineChartComponent from "../components/LineChartComponent";
 import Slurry from "../database/Slurry";
 import Retention from "../database/Retention";
 import Temperature from "../database/Temperature";
+import Storage from "../database/Storage";
+
+
 
 
 
@@ -16,6 +19,7 @@ export default function DashboardPage() {
     <Slurry />
     <Retention/>
     <Temperature />
+    <Storage />
 
     </div>
   );

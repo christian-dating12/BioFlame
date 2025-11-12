@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
 import {
   LineChart,
   Line,
@@ -8,21 +9,57 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Brush, // Added for zoom
+  Brush, 
 } from "recharts";
 
+const DIGESTER_STATUS_ID = 'US-01'; 
+
+const formatTimeLabel = (timestamp) => {
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+};
+
+
 export default function DigesterGraph({ data, filterPeriod, selectedDate }) {
-  // If no data is passed, show placeholder data
-  const sampleData =
-    data && data.length > 0
-      ? data
-      : [
-          { name: "Jan", value: 0 },
-          { name: "Feb", value: 0 },
-          { name: "Mar", value: 0 },
-          { name: "Apr", value: 0 },
-          { name: "May", value: 0 },
-        ];
+  const [graphData, setGraphData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchGraphData() {
+      setLoading(true);
+      setError(null);
+      
+      const { data: fetchedData, error } = await supabase
+        .from('sensorreading') 
+        .select('value, timestamp')
+        .eq('sensor_id', DIGESTER_STATUS_ID) 
+        .order('timestamp', { ascending: true }) 
+        .limit(100); 
+
+      if (error) {
+        console.error("Supabase Error fetching Digester Graph data:", error);
+        setError("Failed to load graph data.");
+      } else {
+        const formattedData = fetchedData
+            .filter(item => item.value !== null) 
+            .map(item => ({
+                name: formatTimeLabel(item.timestamp),
+                value: parseFloat(item.value) || 0,
+            }));
+            
+        setGraphData(formattedData);
+      }
+      setLoading(false);
+    }
+    fetchGraphData();
+  }, [filterPeriod, selectedDate]);
+
+
+  const chartData = graphData.length > 0 ? graphData : [
+      { name: "No Data", value: 0 },
+  ];
 
   return (
     <div
@@ -43,28 +80,44 @@ export default function DigesterGraph({ data, filterPeriod, selectedDate }) {
           Digester Overview (Viewing: {filterPeriod})
         </h3>
       </div>
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={sampleData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#555" />
-          <XAxis dataKey="name" stroke="#ccc" />
-          <YAxis stroke="#ccc" />
-          <Tooltip />
-          <Legend />
-          <Brush // Zoom/Pan component added
-              dataKey="name" 
-              height={30} 
-              stroke="#6C8E3E" 
-              fill="#2E3F24"  
-          />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#6C8E3E"
-            strokeWidth={2}
-            activeDot={{ r: 8 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      
+      {loading && <div style={{ color: "#6C8E3E", textAlign: 'center' }}>Loading graph...</div>}
+      {error && <div style={{ color: "red", textAlign: 'center' }}>{error}</div>}
+      
+      {!loading && (
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#555" />
+            
+            <XAxis 
+                dataKey="name" 
+                stroke="#ccc" 
+                interval="preserveStartEnd" 
+                angle={-30} 
+                textAnchor="end" 
+                height={50} 
+            />
+            
+            {/* Y-AXIS: Domain for Digester Level/Status (0 to 100) */}
+            <YAxis 
+                stroke="#ccc" 
+                domain={[0, 100]} 
+                label={{ value: 'Status Level (%)', angle: -90, position: 'insideLeft', fill: '#ccc' }}
+            />
+            
+            <Tooltip />
+            <Legend />
+            <Brush dataKey="name" height={30} stroke="#6C8E3E" fill="#2E3F24" />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="#6C8E3E"
+              strokeWidth={2}
+              activeDot={{ r: 8 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
     </div>
   );
 }

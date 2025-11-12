@@ -1,16 +1,45 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient"; 
+
+// Assuming the retention time is stored in the 'digester' table
+const DIGESTER_TABLE = 'digester'; 
+const RETENTION_COLUMN = 'retention_time';
 
 export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
-  // Determine the value to display.
-  // We'll display the 'value' from the last item in the array,
-  // or a default of 0 if the data is empty or invalid.
-  const displayValue =
-    data && data.length > 0
-      ? data[data.length - 1].value
-      : 0;
+  // Use state to hold the retention value
+  const [displayValue, setDisplayValue] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Function to format the number (optional: adding units or precision)
-  const formattedValue = typeof displayValue === 'number' ? displayValue.toFixed(2) : displayValue;
+  useEffect(() => {
+    async function getRetentionTime() {
+      setLoading(true);
+      setError(null);
+      
+      // Fetching the retention_time from the 'digester' table
+      const { data, error } = await supabase
+        .from(DIGESTER_TABLE) 
+        .select(RETENTION_COLUMN)
+        .limit(1); // Assuming you only need the retention time from one record
+
+      if (error) {
+        console.error("Supabase Error fetching Retention data:", error);
+        setError("Failed to load data.");
+        setDisplayValue(0);
+      } else {
+        // Retrieve the value, defaulting to 0 if data is missing
+        const rawValue = data && data.length > 0 ? data[0][RETENTION_COLUMN] : 0;
+        const latestValue = parseFloat(rawValue); 
+        
+        setDisplayValue(isNaN(latestValue) ? 0 : latestValue);
+      }
+      setLoading(false);
+    }
+    getRetentionTime();
+  }, [filterPeriod, selectedDate]);
+
+  // Format the number to a whole number (integer) since retention time is 'int4'
+  const formattedValue = displayValue.toFixed(0); 
 
   return (
     <div
@@ -28,15 +57,18 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
       }}
     >
       <h3 style={{ marginBottom: "20px", textAlign: "center", color: "#ccc" }}>
-        Retention
+        Retention (Days)
       </h3>
       
+      {loading && <div style={{ color: "#6C8E3E" }}>Loading...</div>}
+      {error && <div style={{ color: "red" }}>{error}</div>}
+
       {/* Container for the large number */}
       <div
         style={{
-          fontSize: "6em", // Large font size for impact
+          fontSize: "6em", 
           fontWeight: "bold",
-          color: "#6C8E3E", // Use the original line stroke color for the number
+          color: "#6C8E3E", 
           lineHeight: "1.2",
         }}
       >

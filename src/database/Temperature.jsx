@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient";   // or `import supabase from "../supabaseClient"`
+import { supabase } from "../supabaseClient";   
 
-const SENSOR_ID = "T-01";         // temperature sensor_id from your `sensor` table
-const POINTS = 50;                // how many points to draw in the trend
-const POLL_MS = 5000;             // 5s polling (works even without Realtime)
+const SENSOR_ID = "T-01";         
+const POINTS = 50;               
+const POLL_MS = 5000;             
 
 export default function Temperature() {
   const [latest, setLatest] = useState(null);

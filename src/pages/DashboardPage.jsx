@@ -6,7 +6,7 @@ import Retention from "../database/Retention";
 import Temperature from "../database/Temperature";
 import Storage from "../database/Storage";
 import Ph from "../database/acidity";
-
+import Alert from "../database/Alert";
 
 
 
@@ -21,6 +21,7 @@ export default function DashboardPage() {
     <Temperature />
     <Storage />
     <Ph />
+    <Alert />
 
     </div>
   );

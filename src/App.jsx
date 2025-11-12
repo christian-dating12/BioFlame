@@ -14,7 +14,6 @@ export default function App() {
         fontFamily: "Inter, sans-serif",
         backgroundColor: "#FFFFFF", // dark green background for pages
         boxSizing: "border-box",
-        padding: 40,
         color: "#FFFFFF", // white text on pages
       }}
     >

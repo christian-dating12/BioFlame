@@ -5,7 +5,7 @@ import Slurry from "../database/Slurry";
 import Retention from "../database/Retention";
 import Temperature from "../database/Temperature";
 import Storage from "../database/Storage";
-
+import Ph from "../database/acidity";
 
 
 
@@ -20,6 +20,7 @@ export default function DashboardPage() {
     <Retention/>
     <Temperature />
     <Storage />
+    <Ph />
 
     </div>
   );

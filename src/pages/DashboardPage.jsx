@@ -2,7 +2,10 @@ import React from "react";
 import Header from "../components/header";
 import LineChartComponent from "../components/LineChartComponent";
 import Slurry from "../database/Slurry";
-import Retention from "../database/Slurry";
+import Retention from "../database/Retention";
+import Temperature from "../database/Temperature";
+
+
 
 export default function DashboardPage() {
   return (
@@ -12,6 +15,7 @@ export default function DashboardPage() {
     <LineChartComponent /> //placeholder
     <Slurry />
     <Retention/>
+    <Temperature />
 
     </div>
   );

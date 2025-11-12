@@ -263,10 +263,7 @@ export default function Home() {
           justifyContent: "center",
           alignItems: "center", 
           textAlign: "center",
-          // REMOVED: paddingTop: "20px",
-          
-          // Placeholder Background Style
-          backgroundImage: `url(${backgroundImage})`, 
+          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),url(${backgroundImage})`, 
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",

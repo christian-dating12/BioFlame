@@ -54,6 +54,8 @@ cd biogas-frontend
 ### 3️⃣ Install Dependencies
 npm install
 
+npm install recharts
+
 ### 4️⃣ Run the Development Server
 npm run dev
 

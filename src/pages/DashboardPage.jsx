@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Header from "../components/header";
+import Footer from "../components/footer";
 import Slurry from "../database/Slurry";
 import Retention from "../database/Retention";
 import Temperature from "../database/Temperature";
@@ -21,11 +22,11 @@ import GasStorageGraph from "../Graphs/Gas-Storage-Graph";
 
 
 export default function DashboardPage() {
-    // *** NEW STATE: Independent Filter States for Numeric/Summary Data ***
+    // STATE: Independent Filter States for Numeric/Summary Data
     const [numericFilterPeriod, setNumericFilterPeriod] = useState('Weekly');
     const [numericSelectedDate, setNumericSelectedDate] = useState('');
 
-    // *** NEW STATE: Independent Filter States for Line Graphs ***
+    // STATE: Independent Filter States for Line Graphs
     const [graphFilterPeriod, setGraphFilterPeriod] = useState('Weekly');
     const [graphSelectedDate, setGraphSelectedDate] = useState('');
 
@@ -34,7 +35,6 @@ export default function DashboardPage() {
     <div style={{ width: "100%", margin: '0 auto', color: '#333', backgroundColor: '#EFEFEF', minHeight: '100vh' }}>
       <Header />
       
-      {/* Dark Header/Title Bar Placeholder (Matching the screenshot) */}
       <div style={{ 
         backgroundColor: '#333', 
         color: 'white', 
@@ -46,56 +46,46 @@ export default function DashboardPage() {
         justifyContent: 'space-between'
       }}>
         <h1 style={{ margin: 0, fontSize: '32px', fontWeight: 'normal' }}>DASHBOARD</h1>
-        {/* Navigation/Menu placeholder here if necessary */}
       </div>
 
-      {/* --- FILTER 1: FOR NUMERIC/SUMMARY DATA (TOP SECTION) --- */}
+      {/* Filter for Numeric Values */}
       <GlobalTimeFilter 
           filterPeriod={numericFilterPeriod} 
           setFilterPeriod={setNumericFilterPeriod}
           selectedDate={numericSelectedDate}
           setSelectedDate={setNumericSelectedDate}
       />
-      {/* -------------------------------------------------------- */}
 
-
-      {/* 1. First Row: Four Summary Cards (Numeric components) */}
+      {/* Numeric Value*/}
       <div style={{ display: "flex", gap: "20px", margin: "20px 0" }}>
         {/* All numeric cards receive NUMERIC filter props */}
         <div style={{ flex: 1 }}><Slurry filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
         <div style={{ flex: 1 }}><Storage filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
         <div style={{ flex: 1 }}><Retention filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
         <div style={{ flex: 1 }}><Alert filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
-      </div>
-      
-      {/* 2. Second Row: Three components (Gas Quality, etc.) */}
+      </div>      
       <div style={{ display: "flex", gap: "20px", marginBottom: "40px" }}>
         <div style={{ flex: 1 }}><Temperature filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
         <div style={{ flex: 2 }}><Gasses filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
         <div style={{ flex: 1 }}><Ph filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
       </div>
-
-      {/* 3. Slurry Management Table */}
+      {/* Slurry Table */}
       <Table /> 
 
-      {/* --- FILTER 2: FOR LINE TREND GRAPHS (BEFORE LINE TRENDS) --- */}
+      {/* Line Trend filter */}
       <GlobalTimeFilter 
           filterPeriod={graphFilterPeriod} 
           setFilterPeriod={setGraphFilterPeriod}
           selectedDate={graphSelectedDate}
           setSelectedDate={setGraphSelectedDate}
       />
-      {/* -------------------------------------------------------- */}
-
-
-      {/* 4. Gas Quality Charts (Line Trend components) */}
+      {/* Line Trend components */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "20px", marginTop: "20px" }}>
         {/* Line graphs receive GRAPH filter props */}
         <RawGasGraph filterPeriod={graphFilterPeriod} selectedDate={graphSelectedDate} /> 
         <StoredGasGraph filterPeriod={graphFilterPeriod} selectedDate={graphSelectedDate} />
       </div>
 
-      {/* 5. Final Charts Row (Line Trend components) */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginTop: "40px", padding: '20px 0' }}>
         {/* Line graphs receive GRAPH filter props */}
         <TempGraph filterPeriod={graphFilterPeriod} selectedDate={graphSelectedDate} /> 
@@ -104,6 +94,7 @@ export default function DashboardPage() {
         <DigesterGraph filterPeriod={graphFilterPeriod} selectedDate={graphSelectedDate} />
       </div>
 
+      <Footer />
     </div>
   );
 }

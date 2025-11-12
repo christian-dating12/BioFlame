@@ -1,5 +1,6 @@
 import React from "react";
 import Navbar from "./Navbar";
+import HamburgerMenu from "./menu"; // Import the new component
 
 export default function Header() {
   return (
@@ -9,57 +10,54 @@ export default function Header() {
         alignItems: "center",
         justifyContent: "space-between",
         marginBottom: 40,
-        padding: "10 40px",
-        position: "reelative",
+        // Increased right padding from 20px to 40px
+        padding: "10px 40px", 
+        position: "relative",
       }}
     >
-      {/* Logos */}
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img
-            src="/biogas.png"
-            alt="BioFlame Logo"
-            style={{ width: 60, height: 60, objectFit: "contain" }}
-          />
-          <h1
-            style={{
-              color: "#6C8E3E", // white text
-              margin: 0,
-              fontSize: 24,
-              fontFamily: "'Sorts Mill Goudy', serif",
-            }}
-          >
-            BioFlame
-          </h1>
-        </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <img
-            src="/hiraya.png"
-            alt="Hiraya Logo"
-            style={{ width: 60, height: 60, objectFit: "contain" }}
-          />
-          <h1
-            style={{
-              color: "#6C8E3E", // white text
-              margin: 0,
-              fontSize: 24,
-              fontFamily: "'Sorts Mill Goudy', serif",
-            }}
-          >
-            Hiraya
-          </h1>
-        </div>
+      {/* 1. Left Side: Logo and Name */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Placeholder Circle */}
+        <div
+            style={{ 
+                width: '60px', 
+                height: '60px', 
+                borderRadius: '50%', 
+                backgroundColor: '#E5E5E5',
+                marginRight: '5px' 
+            }} 
+        />
+        <h1
+          style={{
+            color: "#333",
+            margin: 0,
+            fontSize: 32,
+            fontFamily: "'Sorts Mill Goudy', serif",
+            fontStyle: 'italic',
+            fontWeight: 400,
+          }}
+        >
+          BioFlame
+        </h1>
       </div>
-      {/* Navbar */}
+      
+      {/* 2. Center Position: Navbar */}
       <div
         style={{
+          // FIX: Absolute positioning to ensure perfect horizontal centering
           position: "absolute",
           left: "50%",
-          transform: "translateX(-50%)",
-        }}>
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+          zIndex: 10,
+        }}
+      >
         <Navbar />
       </div>
+
+      {/* 3. Right Side: Hamburger Menu */}
+      <HamburgerMenu />
+      
     </header>
   );
 }

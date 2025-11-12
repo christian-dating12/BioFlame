@@ -1,5 +1,6 @@
 import React from "react";
 import Header from "../components/header";
+import Footer from "../components/footer"; // NEW IMPORT PATH
 
 const COLORS = {
   darkGreen: "#2E3F24",
@@ -75,66 +76,6 @@ const GuideCard = ({ number, title, color }) => (
   </div>
 );
 
-// --- Footer Component (Copied for completeness) ---
-const Footer = () => {
-    const IconPlaceholder = ({ children }) => (
-        <span style={{ fontSize: '30px', margin: '0 15px', cursor: 'pointer', lineHeight: 1 }}>
-            {children}
-        </span>
-    );
-    
-    return (
-        <footer
-            style={{
-                backgroundColor: COLORS.footerBackground,
-                color: COLORS.lightGray,
-                padding: '30px 40px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                fontFamily: 'sans-serif',
-            }}
-        >
-            {/* Logo and Tagline */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
-                <div 
-                    style={{ 
-                        width: '50px', 
-                        height: '50px', 
-                        borderRadius: '50%', 
-                        backgroundColor: COLORS.mediumGreen, 
-                        marginRight: '15px' 
-                    }} 
-                />
-                <div>
-                    <h3 style={{ fontSize: '24px', fontWeight: 'normal', margin: 0 }}>
-                        BioFlame
-                    </h3>
-                    <p style={{ fontSize: '14px', margin: 0, color: COLORS.mediumGreen }}>
-                        Smart, Affordable Energy from Farm Waste.
-                    </p>
-                </div>
-            </div>
-
-            {/* Social Icons (using text placeholders for simplicity) */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
-                <IconPlaceholder>&#9993;</IconPlaceholder>
-                <IconPlaceholder>&#9742;</IconPlaceholder>
-                <IconPlaceholder>&#xf39e;</IconPlaceholder>
-                <IconPlaceholder>&#xf16d;</IconPlaceholder>
-                <IconPlaceholder>&#xf167;</IconPlaceholder>
-            </div>
-
-            {/* Legal Links and Copyright */}
-            <div style={{ textAlign: 'right', fontSize: '14px', margin: '10px 0' }}>
-                <p style={{ margin: '0 0 5px 0' }}><a href="#" style={{ color: COLORS.lightGray, textDecoration: 'none' }}>Privacy Policy</a></p>
-                <p style={{ margin: '0 0 5px 0' }}><a href="#" style={{ color: COLORS.lightGray, textDecoration: 'none' }}>Terms of Service</a></p>
-                <p style={{ margin: 0 }}>&copy; 2025 BioFlame, Inc.</p>
-            </div>
-        </footer>
-    );
-};
 
 export default function Documentation() {
   
@@ -367,7 +308,7 @@ export default function Documentation() {
         </div>
       </div>
       
-      {/* 4. FOOTER */}
+      {/* 4. FOOTER (Updated to use the imported component) */}
       <Footer />
     </div>
   );

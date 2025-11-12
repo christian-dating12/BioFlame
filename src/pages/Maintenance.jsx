@@ -1,5 +1,6 @@
 import React from "react";
 import Header from "../components/header";
+import Footer from "../components/footer"; // NEW IMPORT PATH
 // import maintenanceBgImage from "../assets/maintenance_background.jpg"; // Placeholder: Image import is commented out
 
 const COLORS = {
@@ -16,66 +17,48 @@ const COLORS = {
   tableGreenStatus: "#A2B29A", // Green for SAFE status
 };
 
-// --- Footer Component (Copied from Home.js for completeness) ---
-const Footer = () => {
-    const IconPlaceholder = ({ children }) => (
-        <span style={{ fontSize: '30px', margin: '0 15px', cursor: 'pointer', lineHeight: 1 }}>
-            {children}
-        </span>
-    );
-    
-    return (
-        <footer
+// --- IoT Box Component (Reused) ---
+const IoTBox = ({ title, children, isCentered }) => (
+    <div 
+        style={{
+            width: isCentered ? "60%" : "45%", // Adjust width based on if it's centered
+            minWidth: "300px",
+            maxWidth: isCentered ? "600px" : "400px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            textAlign: "center",
+        }}
+    >
+        <div
             style={{
-                backgroundColor: COLORS.footerBackground,
-                color: COLORS.lightGray,
-                padding: '30px 40px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                fontFamily: 'sans-serif',
+                backgroundColor: COLORS.white,
+                borderRadius: "15px",
+                border: `3px solid ${COLORS.darkRed}`,
+                padding: "30px",
+                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                marginBottom: "20px",
+                fontStyle: "italic",
+                fontSize: "16px",
+                color: "#444",
             }}
         >
-            {/* Logo and Tagline */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
-                <div 
-                    style={{ 
-                        width: '50px', 
-                        height: '50px', 
-                        borderRadius: '50%', 
-                        backgroundColor: COLORS.mediumGreen, 
-                        marginRight: '15px' 
-                    }} 
-                />
-                <div>
-                    <h3 style={{ fontSize: '24px', fontWeight: 'normal', margin: 0 }}>
-                        BioFlame
-                    </h3>
-                    <p style={{ fontSize: '14px', margin: 0, color: COLORS.mediumGreen }}>
-                        Smart, Affordable Energy from Farm Waste.
-                    </p>
-                </div>
-            </div>
+            {children}
+        </div>
+        <h3
+            style={{
+                fontFamily: "sans-serif",
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: COLORS.darkText,
+                lineHeight: 1,
+            }}
+        >
+            {title}
+        </h3>
+    </div>
+);
 
-            {/* Social Icons (using text placeholders for simplicity) */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
-                <IconPlaceholder>&#9993;</IconPlaceholder>
-                <IconPlaceholder>&#9742;</IconPlaceholder>
-                <IconPlaceholder>&#xf39e;</IconPlaceholder>
-                <IconPlaceholder>&#xf16d;</IconPlaceholder>
-                <IconPlaceholder>&#xf167;</IconPlaceholder>
-            </div>
-
-            {/* Legal Links and Copyright */}
-            <div style={{ textAlign: 'right', fontSize: '14px', margin: '10px 0' }}>
-                <p style={{ margin: '0 0 5px 0' }}><a href="#" style={{ color: COLORS.lightGray, textDecoration: 'none' }}>Privacy Policy</a></p>
-                <p style={{ margin: '0 0 5px 0' }}><a href="#" style={{ color: COLORS.lightGray, textDecoration: 'none' }}>Terms of Service</a></p>
-                <p style={{ margin: 0 }}>&copy; 2025 BioFlame, Inc.</p>
-            </div>
-        </footer>
-    );
-};
 
 export default function Maintenance() {
   
@@ -318,50 +301,8 @@ export default function Maintenance() {
         </div>
       </div>
 
-      {/* 5. FOOTER */}
+      {/* 5. FOOTER (Updated to use the imported component) */}
       <Footer />
     </div>
   );
 }
-
-// --- IoT Box Component ---
-const IoTBox = ({ title, children, isCentered }) => (
-    <div 
-        style={{
-            width: isCentered ? "60%" : "45%", // Adjust width based on if it's centered
-            minWidth: "300px",
-            maxWidth: isCentered ? "600px" : "400px",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            textAlign: "center",
-        }}
-    >
-        <div
-            style={{
-                backgroundColor: COLORS.white,
-                borderRadius: "15px",
-                border: `3px solid ${COLORS.darkRed}`,
-                padding: "30px",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
-                marginBottom: "20px",
-                fontStyle: "italic",
-                fontSize: "16px",
-                color: "#444",
-            }}
-        >
-            {children}
-        </div>
-        <h3
-            style={{
-                fontFamily: "sans-serif",
-                fontSize: "24px",
-                fontWeight: "bold",
-                color: COLORS.darkText,
-                lineHeight: 1,
-            }}
-        >
-            {title}
-        </h3>
-    </div>
-);

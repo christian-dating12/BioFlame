@@ -1,6 +1,7 @@
 import React from "react";
 import Header from "../components/header";
-import backgroundImage from "../assets/home.png"
+import backgroundImage from "../assets/home.png";
+import Footer from "../components/footer";
 // The image import remains commented out to avoid build errors:
 // import backgroundImage from "../assets/bioflame_background.jpg"; 
 
@@ -12,7 +13,6 @@ const COLORS = {
   brown: "#704214",
   lightGray: "#E5E5E5", // Used for the new Hero placeholder background
   darkText: "#23320F",
-  footerBackground: "#23320F", 
   white: "#FFFFFF",
   placeholderText: "#333333", // Dark color for placeholder text
 };
@@ -184,68 +184,6 @@ const Step = ({ stepNumber, title, description, position, circleColor, numberCol
       </div>
     </React.Fragment>
   );
-};
-
-// --- New Footer Component ---
-const Footer = () => {
-    // Icons are represented using simple placeholders for text/SVG components
-    const IconPlaceholder = ({ children }) => (
-        <span style={{ fontSize: '30px', margin: '0 15px', cursor: 'pointer', lineHeight: 1 }}>
-            {children}
-        </span>
-    );
-    
-    return (
-        <footer
-            style={{
-                backgroundColor: COLORS.footerBackground,
-                color: COLORS.lightGray,
-                padding: '30px 40px',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                fontFamily: 'sans-serif',
-            }}
-        >
-            {/* Logo and Tagline */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
-                <div 
-                    style={{ 
-                        width: '50px', 
-                        height: '50px', 
-                        borderRadius: '50%', 
-                        backgroundColor: COLORS.mediumGreen, 
-                        marginRight: '15px' 
-                    }} 
-                />
-                <div>
-                    <h3 style={{ fontSize: '24px', fontWeight: 'normal', margin: 0 }}>
-                        BioFlame
-                    </h3>
-                    <p style={{ fontSize: '14px', margin: 0, color: COLORS.mediumGreen }}>
-                        Smart, Affordable Energy from Farm Waste.
-                    </p>
-                </div>
-            </div>
-
-            {/* Social Icons (using text placeholders for simplicity) */}
-            <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0' }}>
-                <IconPlaceholder>&#9993;</IconPlaceholder> {/* Mail */}
-                <IconPlaceholder>&#9742;</IconPlaceholder> {/* Phone */}
-                <IconPlaceholder>&#xf39e;</IconPlaceholder> {/* Facebook (using generic char) */}
-                <IconPlaceholder>&#xf16d;</IconPlaceholder> {/* Instagram (using generic char) */}
-                <IconPlaceholder>&#xf167;</IconPlaceholder> {/* YouTube (using generic char) */}
-            </div>
-
-            {/* Legal Links and Copyright */}
-            <div style={{ textAlign: 'right', fontSize: '14px', margin: '10px 0' }}>
-                <p style={{ margin: '0 0 5px 0' }}><a href="#" style={{ color: COLORS.lightGray, textDecoration: 'none' }}>Privacy Policy</a></p>
-                <p style={{ margin: '0 0 5px 0' }}><a href="#" style={{ color: COLORS.lightGray, textDecoration: 'none' }}>Terms of Service</a></p>
-                <p style={{ margin: 0 }}>&copy; 2025 BioFlame, Inc.</p>
-            </div>
-        </footer>
-    );
 };
 
 // --- Main Home Component ---

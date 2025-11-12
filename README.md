@@ -65,13 +65,26 @@ http://localhost:5173
 \```
 
 ---
+## ARCHITECTURE
 
-
-
-
-
-
-
+```text
+src/
+ ├─ assets/             # Logos, icons, and images
+ ├─ components/         # Reusable components
+ │   ├─ Navbar.jsx       # Top navigation bar
+ │   ├─ Header.jsx       # Page header component
+ │   └─ ui/             # Reusable UI elements
+ │       ├─ Button.jsx
+ │       ├─ Card.jsx
+ │       └─ Input.jsx
+ ├─ pages/              # Pages
+ │   ├─ Home.jsx
+ │   ├─ Maintenance.jsx
+ │   ├─ Documentation.jsx
+ │   └─ Dashboard.jsx
+ ├─ theme/              # Tailwind customization and color palette
+ ├─ App.jsx             # Main app component
+ └─ main.jsx            # Entry point
 
 
 

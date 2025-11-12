@@ -85,10 +85,3 @@ src/
  ├─ theme/              # Tailwind customization and color palette
  ├─ App.jsx             # Main app component
  └─ main.jsx            # Entry point
-
-
-
-
-
-
-

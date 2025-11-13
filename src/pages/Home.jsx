@@ -1,15 +1,23 @@
 import React from "react";
-import Header from "../components/header";// Imported the external Footer component
+import Header from "../components/header";
+import Footer from "../components/footer"; // Imported the external Footer component
 import backgroundImage from "../assets/home.png"
 
 const COLORS = {
-  darkGreen: "#2E3F24", 
-  mediumGreen: "#A2B29A", 
-  tan: "#D9C08D", 
-  blockGreen: '#709C66', 
-  blockTan: '#F1E0C9', 
-    numberGray: '#888888', 
-  darkLine: '#333333',
+  // --- Colors based on the images ---
+  darkGreen: "#2E3F24", // Mission/Vision dark block, Footer background
+  mediumGreen: "#A2B29A", // Mission/Vision light block, Benefits cards
+  tan: "#D9C08D", // Benefits 02/04
+  
+  // New specific colors based on image_9088f4.png blocks:
+  blockGreen: '#709C66', // Green block color for row 1
+  blockTan: '#F1E0C9', // Tan block color for row 2
+  
+  // New number color: A slightly darker gray
+  numberGray: '#888888', 
+  darkLine: '#333333', // Dark color for lines and text
+
+  // General Text and UI colors
   lightGray: "#E5E5E5", 
   darkText: "#23320F",
   white: "#FFFFFF",
@@ -111,7 +119,6 @@ const ProcessStep = ({ stepNumber, title, description, isLast }) => {
                     maxWidth: '300px',
                     textAlign: 'left',
                     zIndex: 10, 
-                    // Padding adjustment based on left/right quadrant to align text flow
                     paddingLeft: isLeftStep ? '0' : '40px', 
                     paddingRight: isLeftStep ? '40px' : '0', 
                 }}
@@ -170,12 +177,11 @@ const ProcessStep = ({ stepNumber, title, description, isLast }) => {
                 <div
                     style={{
                         position: "absolute",
-                        // Place at the internal edge, centered vertically
                         right: isLeftStep ? '0' : 'auto', 
                         left: isLeftStep ? 'auto' : '0', 
                         top: '50%',
                         transform: `translate(${isLeftStep ? '0%' : '-100%'}, -50%)`, // Push line out of the block
-                        width: '80px', // Line width adjusted to bridge the gap accurately
+                        width: '80px', 
                         height: "1px",
                         backgroundColor: lineHeightColor,
                         zIndex: 1,

@@ -1,6 +1,6 @@
 import React from "react";
 import Header from "../components/header";
-import Footer from "../components/footer"; // NEW IMPORT PATH
+import Footer from "../components/footer"; 
 
 const COLORS = {
   darkGreen: "#2E3F24",
@@ -12,7 +12,11 @@ const COLORS = {
   darkText: "#23320F",
   footerBackground: "#23320F",
   white: "#FFFFFF",
+<<<<<<< HEAD
   sectionTitle: "#705D40", 
+=======
+  sectionTitle: "#705D40",
+>>>>>>> 8d1bb12ca7bc7ed0029258c21c0e3c87fea589bf
   digesterBackground: "#705D40", 
   boxShadowDark: "0 4px 8px rgba(0,0,0,0.2)",
 };

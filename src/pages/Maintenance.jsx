@@ -2,19 +2,23 @@ import React from "react";
 import Header from "../components/header";
 import Footer from "../components/footer"; 
 import maintenanceImage from "../assets/maintenance-bg.png";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 8d1bb12ca7bc7ed0029258c21c0e3c87fea589bf
 
 const COLORS = {
   darkGreen: "#2E3F24",
   mediumGreen: "#A2B29A",
   white: "#FFFFFF",
   lightGold: "#D9C08D",
-  darkRed: "#9E3C36", // Color used for IoT boxes
+  darkRed: "#9E3C36", 
   lightGray: "#E5E5E5",
   darkText: "#23320F",
   footerBackground: "#23320F", 
-  tableHeader: "#D9C08D", // Tan/Gold for table headers
-  tableLightRow: "#F5F5F5", // Light background for table body
-  tableGreenStatus: "#A2B29A", // Green for SAFE status
+  tableHeader: "#D9C08D", 
+  tableLightRow: "#F5F5F5", 
+  tableGreenStatus: "#A2B29A",
 };
 
 // --- IoT Box Component (Reused) ---
@@ -91,17 +95,12 @@ export default function Maintenance() {
             width: "100%",
             minHeight: "500px", 
             display: "flex",
-            // Center text content horizontally (optional)
             justifyContent: "center", 
             alignItems: "flex-start",
-            padding: "80px 20px",
-            
-            // --- IMAGE INTEGRATION HERE ---
+            padding: "80px 20px",         
             backgroundImage: `linear-gradient(rgba(46, 63, 36, 0.6), rgba(46, 63, 36, 0.6)), url(${maintenanceImage})`,            
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            // --- END IMAGE INTEGRATION ---
-
             boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
             position: "relative",
           }}
@@ -112,7 +111,6 @@ export default function Maintenance() {
               maxWidth: "600px",
               textAlign: "left",
               padding: "20px",
-              // Added dark overlay to the text block for contrast if the image is too bright
               background: "rgba(0,0,0,0.1)", 
               borderRadius: "10px",
               zIndex: 1,

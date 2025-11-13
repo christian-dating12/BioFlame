@@ -2,10 +2,6 @@ import React from "react";
 import Header from "../components/header";
 import Footer from "../components/footer"; 
 import maintenanceImage from "../assets/maintenance-bg.png";
-<<<<<<< HEAD
-=======
-
->>>>>>> 8d1bb12ca7bc7ed0029258c21c0e3c87fea589bf
 
 const COLORS = {
   darkGreen: "#2E3F24",

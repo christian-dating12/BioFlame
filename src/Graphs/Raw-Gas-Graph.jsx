@@ -196,11 +196,7 @@ export default function RawGasGraph({ filterPeriod, selectedDate }) {
               activeDot={{ r: 6 }}
               name="Methane (CH4)"
               isAnimationActive={false}
-<<<<<<< HEAD
-              connectNulls={true} // ensures continuous line even if minor gaps
-=======
               connectNulls={true} // ✅ ensures continuous line even if minor gaps
->>>>>>> 8d1bb12ca7bc7ed0029258c21c0e3c87fea589bf
             />
 
             <Line
@@ -212,11 +208,7 @@ export default function RawGasGraph({ filterPeriod, selectedDate }) {
               activeDot={{ r: 6 }}
               name="Carbon Dioxide (CO2)"
               isAnimationActive={false}
-<<<<<<< HEAD
-              connectNulls={true} // connect small gaps in CO₂ data
-=======
               connectNulls={true} // ✅ connect small gaps in CO₂ data
->>>>>>> 8d1bb12ca7bc7ed0029258c21c0e3c87fea589bf
             />
           </LineChart>
         </ResponsiveContainer>

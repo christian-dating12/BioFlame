@@ -9,6 +9,7 @@ import Ph from "../database/acidity";
 import Alert from "../database/Alert";
 import Table from "../database/Table";
 import Gasses from "../database/gasses";
+import WaterLevel from "../database/Water"
 
 import GlobalTimeFilter from "../components/GlobalTimeFilter";
 
@@ -59,8 +60,7 @@ export default function DashboardPage() {
       {/* Numeric Value*/}
       <div style={{ display: "flex", gap: "20px", margin: "20px 0" }}>
         {/* All numeric cards receive NUMERIC filter props */}
-        {/* 🎯 PLACED WATER LEVEL HERE */}
-        <div style={{ flex: 1 }}><WaterLevel filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
+        <div style={{ flex: 1 }}><WaterLevel filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div> {/* added as new measurement*/}
         <div style={{ flex: 1 }}><Slurry filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
         <div style={{ flex: 1 }}><Storage filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>
         <div style={{ flex: 1 }}><Retention filterPeriod={numericFilterPeriod} selectedDate={numericSelectedDate} /></div>

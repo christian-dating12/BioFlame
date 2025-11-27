@@ -4,6 +4,32 @@ import { supabase } from "../supabaseClient";
 // Mapping confirmed sensor ID for Storage/Water Level (US-01)
 const STORAGE_SENSOR_ID = 'US-01'; 
 
+// Helper function to define the time range
+const calculateTimeRange = (filterPeriod) => {
+    const now = new Date();
+    let startTime = new Date(now);
+
+    switch (filterPeriod) {
+        case 'Hourly':
+            startTime.setHours(now.getHours( - 11));
+        case 'Daily':
+            startTime.setDate(now.getDate() - 1); // Last 24 hours
+            break;
+        case 'Weekly':
+            startTime.setDate(now.getDate() - 7); // Last 7 days
+            break;
+        case 'Monthly':
+            startTime.setMonth(now.getMonth() - 1); // Last 30 days
+            break;
+        case 'Yearly':
+            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
+            break;
+        default:
+            startTime.setDate(now.getDate() - 7); // Default to Weekly
+    }
+    return startTime.toISOString();
+};
+
 export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
   const [displayValue, setDisplayValue] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -14,10 +40,13 @@ export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
       setLoading(true);
       setError(null);
       
+      const startTime = calculateTimeRange(filterPeriod);
+
       const { data, error } = await supabase
         .from('sensorreading') // Targeting the sensorreading table
         .select('value, unit, timestamp')
         .eq('sensor_id', STORAGE_SENSOR_ID) // Filtering for the US-01 sensor
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order('timestamp', { ascending: false }) // Ensures newest data is fetched first
         .limit(5); // Check top 5 records for non-NULL value
 
@@ -41,7 +70,7 @@ export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
       setLoading(false);
     }
     getStorageLevel();
-  }, [filterPeriod, selectedDate]);
+  }, [filterPeriod, selectedDate]); 
 
   // Function to format the number
   const formattedValue = typeof displayValue === 'number' ? displayValue.toFixed(2) : displayValue;

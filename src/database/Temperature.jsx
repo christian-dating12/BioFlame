@@ -4,6 +4,32 @@ import { supabase } from "../supabaseClient";
 // Mapping confirmed sensor ID for Temperature (T-01)
 const TEMPERATURE_SENSOR_ID = 'T-01'; 
 
+// Helper function to define the time range
+const calculateTimeRange = (filterPeriod) => {
+    const now = new Date();
+    let startTime = new Date(now);
+
+    switch (filterPeriod) {
+        case 'Hourly':
+            startTime.setHours(now.getHours( - 11));
+        case 'Daily':
+            startTime.setDate(now.getDate() - 1); // Last 24 hours
+            break;
+        case 'Weekly':
+            startTime.setDate(now.getDate() - 7); // Last 7 days
+            break;
+        case 'Monthly':
+            startTime.setMonth(now.getMonth() - 1); // Last 30 days
+            break;
+        case 'Yearly':
+            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
+            break;
+        default:
+            startTime.setDate(now.getDate() - 7); // Default to Weekly
+    }
+    return startTime.toISOString();
+};
+
 export default function DataOverviewComponent({ filterPeriod }) {
 
   const [displayValue, setDisplayValue] = useState(0);
@@ -15,10 +41,13 @@ export default function DataOverviewComponent({ filterPeriod }) {
       setLoading(true);
       setError(null);
       
+      const startTime = calculateTimeRange(filterPeriod);
+
       const { data, error } = await supabase
         .from('sensorreading') 
         .select('value, timestamp')
         .eq('sensor_id', TEMPERATURE_SENSOR_ID) 
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order('timestamp', { ascending: false }) 
         .limit(5); 
 
@@ -39,7 +68,7 @@ export default function DataOverviewComponent({ filterPeriod }) {
     }
     getTemperature();
     
-  }, [filterPeriod]);
+  }, [filterPeriod]); 
 
   // Function to format the number
   const formattedValue = typeof displayValue === 'number' ? displayValue.toFixed(2) : displayValue;

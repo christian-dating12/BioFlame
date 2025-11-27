@@ -15,6 +15,33 @@ import {
 const STORED_CH4_ID = "CH4-STO";
 const STORED_CO2_ID = "CO2-STO";
 
+// Helper function to define the time range
+const calculateTimeRange = (filterPeriod) => {
+    const now = new Date();
+    let startTime = new Date(now);
+
+    switch (filterPeriod) {
+        case 'Hourly':
+            startTime.setHours(now.getHours( - 11));
+        case 'Daily':
+            startTime.setDate(now.getDate() - 1); // Last 24 hours
+            break;
+        case 'Weekly':
+            startTime.setDate(now.getDate() - 7); // Last 7 days
+            break;
+        case 'Monthly':
+            startTime.setMonth(now.getMonth() - 1); // Last 30 days
+            break;
+        case 'Yearly':
+            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
+            break;
+        default:
+            startTime.setDate(now.getDate() - 7); // Default to Weekly
+    }
+    return startTime.toISOString();
+};
+
+
 // ✅ Format readable time for X-axis
 const formatTimeLabel = (timestamp) => {
   if (!timestamp) return "";
@@ -43,20 +70,24 @@ export default function StoredGasGraph({ filterPeriod, selectedDate }) {
     async function fetchGraphData() {
       setLoading(true);
       setError(null);
+      
+      const startTime = calculateTimeRange(filterPeriod); // Calculate start time
 
-      // ✅ Fetch CH4 data
+      // ✅ Fetch CH4 data (filtered by time period)
       const { data: ch4Data, error: ch4Error } = await supabase
         .from("sensorreading")
         .select("sensor_id, value, timestamp")
         .eq("sensor_id", STORED_CH4_ID)
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order("timestamp", { ascending: true })
         .limit(100);
 
-      // ✅ Fetch CO2 data
+      // ✅ Fetch CO2 data (filtered by time period)
       const { data: co2Data, error: co2Error } = await supabase
         .from("sensorreading")
         .select("sensor_id, value, timestamp")
         .eq("sensor_id", STORED_CO2_ID)
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order("timestamp", { ascending: true })
         .limit(100);
 
@@ -112,7 +143,7 @@ export default function StoredGasGraph({ filterPeriod, selectedDate }) {
     }
 
     fetchGraphData();
-  }, [filterPeriod, selectedDate]);
+  }, [filterPeriod, selectedDate]); 
 
   const graphData =
     data.length > 0 ? data : [{ name: "No Data", ch4: 0, co2: 0 }];

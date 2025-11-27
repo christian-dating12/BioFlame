@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "../supabaseClient"; // Import Supabase client
+import { supabase } from "../supabaseClient"; // Import Supabase
 import {
   LineChart,
   Line,
@@ -14,6 +14,32 @@ import {
 
 // Mapping confirmed sensor ID for Temperature (T-01)
 const TEMPERATURE_SENSOR_ID = 'T-01'; 
+
+// Helper function to define the time range
+const calculateTimeRange = (filterPeriod) => {
+    const now = new Date();
+    let startTime = new Date(now);
+
+    switch (filterPeriod) {
+        case 'Hourly':
+            startTime.setHours(now.getHours( - 11));
+        case 'Daily':
+            startTime.setDate(now.getDate() - 1); // Last 24 hours
+            break;
+        case 'Weekly':
+            startTime.setDate(now.getDate() - 7); // Last 7 days
+            break;
+        case 'Monthly':
+            startTime.setMonth(now.getMonth() - 1); // Last 30 days
+            break;
+        case 'Yearly':
+            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
+            break;
+        default:
+            startTime.setDate(now.getDate() - 7); // Default to Weekly
+    }
+    return startTime.toISOString();
+};
 
 // Helper to format the timestamp for the X-axis (e.g., "11/11 02:10")
 const formatTimeLabel = (timestamp) => {
@@ -34,10 +60,13 @@ export default function TemperatureGraph({ filterPeriod, selectedDate }) {
       setLoading(true);
       setError(null);
       
+      const startTime = calculateTimeRange(filterPeriod); // Calculate start time
+
       const { data: fetchedData, error } = await supabase
         .from('sensorreading') 
         .select('value, timestamp')
         .eq('sensor_id', TEMPERATURE_SENSOR_ID) 
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order('timestamp', { ascending: true }) 
         .limit(100); 
 
@@ -60,7 +89,7 @@ export default function TemperatureGraph({ filterPeriod, selectedDate }) {
     }
     fetchGraphData();
     // Re-run fetch when filters change
-  }, [filterPeriod, selectedDate]);
+  }, [filterPeriod, selectedDate]); 
 
 
   // Placeholder data if no data is returned or data is empty

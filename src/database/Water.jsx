@@ -1,70 +1,181 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; 
 
+// Helper function to define the time range (Required for Historical Balance calculation)
+const calculateTimeRange = (filterPeriod, selectedDate) => {
+    // Current date/time for calculating backward periods, or if no date is provided.
+    const now = new Date();
+    let startTime = new Date(now);
+    let endTime = new Date(now);
+    
+    // --- 1. Handle Hourly Filter (Highest Priority) ---
+    if (filterPeriod === 'Hourly' && selectedDate && selectedDate.includes('|')) {
+        // Format of selectedDate is "YYYY-MM-DD|H" (e.g., "2025-11-28|10")
+        const parts = selectedDate.split('|');
+        const datePart = parts[0];
+        const hour = parseInt(parts[1], 10); // hour is 0-11
+
+        // Start time is YYYY-MM-DD HH:00:00Z
+        startTime = new Date(`${datePart}T00:00:00Z`);
+        startTime.setUTCHours(hour);
+
+        // End time is YYYY-MM-DD (H+1):00:00Z
+        endTime = new Date(startTime);
+        endTime.setUTCHours(hour + 1);
+
+        return { 
+            startTime: startTime.toISOString(), 
+            endTime: endTime.toISOString() 
+        };
+    }
+
+    // --- 2. Set the End Time based on the selectedDate (if provided) ---
+    if (selectedDate && !selectedDate.includes('|')) {
+        // Set End Time to the end of the day specified in selectedDate
+        const dateParts = selectedDate.split('-'); // Assumes YYYY-MM-DD format from input type='date'
+        
+        // Use the date part to construct the end of that day (23:59:59.999)
+        // Note: Months in JS Date are 0-indexed (Jan=0, Dec=11)
+        endTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], 23, 59, 59, 999);
+    } 
+    // If selectedDate is empty, endTime remains 'now'.
+
+    // --- 3. Calculate the Start Time based on filterPeriod relative to endTime ---
+    startTime = new Date(endTime); // Base calculation on the calculated endTime
+
+    switch (filterPeriod) {
+        case 'Daily':
+            startTime.setDate(startTime.getDate() - 1); 
+            break;
+        case 'Weekly':
+            startTime.setDate(startTime.getDate() - 7); 
+            break;
+        case 'Monthly':
+            startTime.setMonth(startTime.getMonth() - 1); 
+            break;
+        case 'Yearly':
+            startTime.setFullYear(startTime.getFullYear() - 1); 
+            break;
+    }
+    
+    return { 
+        startTime: startTime.toISOString(), 
+        endTime: endTime.toISOString() 
+    };
+};
+
+
 export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
   const [totalWeight, setTotalWeight] = useState(0);
+  // Fetched dynamically from digester table
+  const [maxCapacity, setMaxCapacity] = useState(1000); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // ⚙️ CONFIG: Set your tank's maximum capacity in KG here.
-  // (e.g., if your tank holds 1000kg, put 1000).
-  const MAX_CAPACITY_KG = 170; 
+  // New function to create an alert
+  const createSlurryAlert = async (percentage) => {
+      // Check if alert condition is met (OVER 100%)
+      if (percentage > 100) {
+          const alertMessage = `CRITICAL: Digester Overfill Detected! Slurry level is ${percentage.toFixed(1)}%.`;
+          
+          // Check if an identical 'New' alert already exists to prevent spamming the table
+          const { count } = await supabase
+              .from('alertlog')
+              .select('*', { count: 'exact', head: true })
+              .eq('message', alertMessage)
+              .eq('status', 'New');
+
+          if (count === 0) {
+              const { error } = await supabase
+                  .from('alertlog')
+                  .insert({
+                      timestamp: new Date().toISOString(),
+                      message: alertMessage,
+                      severity: 'High',
+                      status: 'New',
+                      source_id: 'D-01' // Assuming 'D-01' is the digester source
+                  });
+              if (error) console.error("Failed to create alert:", error);
+          }
+      }
+      // Note: Logic to clear the alert (e.g., if level drops below 95%) is omitted for simplicity but is necessary for a full system.
+  };
+
+  const fetchMaxCapacity = async () => {
+      const { data, error } = await supabase
+          .from('digester')
+          .select('max_capacity')
+          .eq('digester_id', 'D-01')
+          .single();
+
+      if (error || !data) {
+          console.error("Error fetching max capacity:", error);
+          setMaxCapacity(1000); 
+      } else {
+          setMaxCapacity(parseFloat(data.max_capacity) || 1000); 
+      }
+  }
 
   useEffect(() => {
-    // Function to calculate total weight from active table entries
-    async function getSlurryLevel() {
+    // 1. Fetch Capacity first
+    fetchMaxCapacity();
+
+    // 2. Function to calculate HISTORICAL BALANCE
+    async function getHistoricalSlurryBalance() {
       setLoading(true);
       setError(null);
       
       try {
-        // Query the exact same data as your Table component
-        const { data, error } = await supabase
+        const { endTime } = calculateTimeRange(filterPeriod, selectedDate);
+        
+        // --- 1. Fetch Inputs (All 'IN' transactions BEFORE endTime) ---
+        const { data: inputData, error: inputError } = await supabase
           .from('slurrylog')
           .select('weight') 
           .eq('transact_type', 'IN')
-          .not('release_date', 'is', null);
+          .lt('timestamp', endTime); 
 
-        if (error) {
-          console.error("Supabase Error fetching Slurry Level:", error);
-          setError("Failed to load level data.");
+        // --- 2. Fetch Outputs (All 'OUT' transactions BEFORE endTime) ---
+        const { data: outputData, error: outputError } = await supabase
+          .from('slurrylog')
+          .select('weight') 
+          .eq('transact_type', 'OUT') 
+          .lt('timestamp', endTime); 
+
+        if (inputError || outputError) {
+          console.error("Supabase Error fetching Historical Slurry Balance:", inputError || outputError);
+          setError("Failed to load historical balance data.");
+          setTotalWeight(0);
+          return 0; // Return 0 if fetch fails
         } else {
-          // Sum up all the weights
-          const sum = data.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
-          setTotalWeight(sum);
+          const inputSum = inputData.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
+          const outputSum = outputData.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
+          
+          const balance = Math.max(0, inputSum - outputSum); 
+          setTotalWeight(balance);
+          return balance; // Return balance for alert check
         }
       } catch (e) {
         console.error("Fetch exception:", e);
         setError("An unexpected error occurred.");
+        return 0;
       } finally {
         setLoading(false);
       }
     }
 
-    // 1. Fetch immediately on load
-    getSlurryLevel();
+    getHistoricalSlurryBalance().then(balance => {
+        // Calculate the raw percentage (potentially > 100%)
+        const rawPercentage = (balance / maxCapacity) * 100;
+        
+        // Trigger alert check AFTER data is fetched and capacity is known
+        createSlurryAlert(rawPercentage);
+    });
     
-    // 2. Listen for changes in the 'slurrylog' table (Real-time)
-    const subscription = supabase
-      .channel('slurry_level_updates')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'slurrylog' },
-        () => {
-            // When the table changes (add/edit/delete), re-fetch the sum
-            getSlurryLevel(); 
-        }
-      )
-      .subscribe();
+  }, [filterPeriod, selectedDate, maxCapacity]); // maxCapacity included to re-run calculation/alert if capacity changes
 
-    // Cleanup subscription when component unmounts
-    return () => {
-        supabase.removeChannel(subscription);
-    };
-
-  }, [filterPeriod, selectedDate]);
-
-  // Calculate percentage based on the defined Max Capacity
-  const percentageFull = Math.min(100, Math.max(0, (totalWeight / MAX_CAPACITY_KG) * 100));
+  // Calculate percentage for display (capped at 100.0%)
+  const percentageFull = Math.min(100, Math.max(0, (totalWeight / maxCapacity) * 100));
   
   // Formatting
   const formattedValue = percentageFull.toFixed(1); 
@@ -96,22 +207,22 @@ export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
       
       {!loading && !error && (
         <>
-            {/* Large Percentage Display */}
-            <div
-                style={{
-                fontSize: "6em", 
-                fontWeight: "bold",
-                color: statusColor, 
-                lineHeight: "1.2",
-                }}
-            >
-                {formattedValue}
-            </div>
+          {/* Large Percentage Display */}
+          <div
+              style={{
+              fontSize: "6em", 
+              fontWeight: "bold",
+              color: statusColor, 
+              lineHeight: "1.2",
+              }}
+          >
+              {formattedValue}
+          </div>
 
-            {/* Subtitle: Total Weight vs Capacity */}
-            <p style={{ color: "#aaa", marginTop: "10px", textAlign: "center" }}>
-                % Full ({totalWeight.toFixed(0)} kg / {MAX_CAPACITY_KG} kg)
-            </p>
+          {/* Subtitle: Total Weight vs Capacity */}
+          <p style={{ color: "#aaa", marginTop: "10px", textAlign: "center" }}>
+              % Full ({totalWeight.toFixed(0)} kg / {maxCapacity.toFixed(0)} kg)
+          </p>
         </>
       )}
     </div>

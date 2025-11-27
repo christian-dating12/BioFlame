@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; 
 
+// REMOVED: calculateTimeRange helper function
+
 export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,11 +13,14 @@ export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
       setLoading(true);
       setError(null);
       
-      // Querying the 'slurrylog' table with 'weight' column
+      // REMOVED: const { startTime, endTime } = calculateTimeRange(filterPeriod, selectedDate);
+      
+      // Querying the 'slurrylog' table for the absolute latest 'IN' transaction.
       const { data: fetchedData, error } = await supabase
         .from('slurrylog') // Using 'slurrylog' table name
         .select('weight, timestamp, transact_type') // Using 'weight' column
         .eq('transact_type', 'IN') 
+        // REMOVED TIME FILTERS: .gte('timestamp', startTime).lt('timestamp', endTime)
         .order('timestamp', { ascending: false })
         .limit(1); 
 
@@ -30,6 +35,7 @@ export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
 
     fetchData();
     
+    // NOTE: This effect re-runs if filterPeriod changes, updating the display text.
   }, [filterPeriod, selectedDate]);
 
 

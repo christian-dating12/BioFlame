@@ -15,6 +15,33 @@ import {
 const RAW_CH4_ID = "CH4-DIG";
 const RAW_CO2_ID = "CO2-DIG";
 
+// Helper function to define the time range
+const calculateTimeRange = (filterPeriod) => {
+    const now = new Date();
+    let startTime = new Date(now);
+
+    switch (filterPeriod) {
+        case 'Hourly':
+            startTime.setHours(now.getHours( - 11));
+        case 'Daily':
+            startTime.setDate(now.getDate() - 1); // Last 24 hours
+            break;
+        case 'Weekly':
+            startTime.setDate(now.getDate() - 7); // Last 7 days
+            break;
+        case 'Monthly':
+            startTime.setMonth(now.getMonth() - 1); // Last 30 days
+            break;
+        case 'Yearly':
+            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
+            break;
+        default:
+            startTime.setDate(now.getDate() - 7); // Default to Weekly
+    }
+    return startTime.toISOString();
+};
+
+
 // ✅ Format readable time for X-axis
 const formatTimeLabel = (timestamp) => {
   if (!timestamp) return "";
@@ -43,20 +70,24 @@ export default function RawGasGraph({ filterPeriod, selectedDate }) {
     async function fetchGraphData() {
       setLoading(true);
       setError(null);
+      
+      const startTime = calculateTimeRange(filterPeriod); // Calculate start time
 
-      // ✅ Fetch CH4
+      // ✅ Fetch CH4 (filtered by time period)
       const { data: ch4Data, error: ch4Error } = await supabase
         .from("sensorreading")
         .select("sensor_id, value, timestamp")
         .eq("sensor_id", RAW_CH4_ID)
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order("timestamp", { ascending: true })
         .limit(100);
 
-      // ✅ Fetch CO2
+      // ✅ Fetch CO2 (filtered by time period)
       const { data: co2Data, error: co2Error } = await supabase
         .from("sensorreading")
         .select("sensor_id, value, timestamp")
         .eq("sensor_id", RAW_CO2_ID)
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order("timestamp", { ascending: true })
         .limit(100);
 
@@ -108,7 +139,7 @@ export default function RawGasGraph({ filterPeriod, selectedDate }) {
     }
 
     fetchGraphData();
-  }, [filterPeriod, selectedDate]);
+  }, [filterPeriod, selectedDate]); 
 
   const graphData =
     data.length > 0 ? data : [{ name: "No Data", ch4: 0, co2: 0 }];
@@ -196,7 +227,7 @@ export default function RawGasGraph({ filterPeriod, selectedDate }) {
               activeDot={{ r: 6 }}
               name="Methane (CH4)"
               isAnimationActive={false}
-              connectNulls={true} // ✅ ensures continuous line even if minor gaps
+              connectNulls={true} 
             />
 
             <Line
@@ -208,7 +239,7 @@ export default function RawGasGraph({ filterPeriod, selectedDate }) {
               activeDot={{ r: 6 }}
               name="Carbon Dioxide (CO2)"
               isAnimationActive={false}
-              connectNulls={true} // ✅ connect small gaps in CO₂ data
+              connectNulls={true} 
             />
           </LineChart>
         </ResponsiveContainer>

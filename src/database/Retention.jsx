@@ -5,6 +5,53 @@ import { supabase } from "../supabaseClient";
 const DIGESTER_TABLE = 'digester'; 
 const RETENTION_COLUMN = 'retention_time';
 
+// Helper function to define the time range (included for consistency, though unused here)
+const calculateTimeRange = (filterPeriod, selectedDate) => {
+    // Current date/time for calculating backward periods, or if no date is provided.
+    const now = new Date();
+    let startTime = new Date(now);
+    let endTime = new Date(now);
+    
+    // --- 1. Handle Hourly Filter (Highest Priority) ---
+    if (filterPeriod === 'Hourly' && selectedDate && selectedDate.includes('|')) {
+        const parts = selectedDate.split('|');
+        const datePart = parts[0];
+        const hour = parseInt(parts[1], 10); 
+        startTime = new Date(`${datePart}T00:00:00Z`);
+        startTime.setUTCHours(hour);
+        endTime = new Date(startTime);
+        endTime.setUTCHours(hour + 1);
+        return { startTime: startTime.toISOString(), endTime: endTime.toISOString() };
+    }
+
+    // --- 2. Set the End Time based on the selectedDate (if provided) ---
+    if (selectedDate && !selectedDate.includes('|')) {
+        const dateParts = selectedDate.split('-'); 
+        endTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], 23, 59, 59, 999);
+    } 
+    // If selectedDate is empty, endTime remains 'now'.
+
+    // --- 3. Calculate the Start Time based on filterPeriod relative to endTime ---
+    startTime = new Date(endTime); 
+    switch (filterPeriod) {
+        case 'Daily':
+            startTime.setDate(startTime.getDate() - 1); 
+            break;
+        case 'Weekly':
+            startTime.setDate(startTime.getDate() - 7); 
+            break;
+        case 'Monthly':
+            startTime.setMonth(startTime.getMonth() - 1); 
+            break;
+        case 'Yearly':
+            startTime.setFullYear(startTime.getFullYear() - 1); 
+            break;
+    }
+    
+    return { startTime: startTime.toISOString(), endTime: endTime.toISOString() };
+};
+
+
 export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
   // Use state to hold the retention value
   const [displayValue, setDisplayValue] = useState(0);

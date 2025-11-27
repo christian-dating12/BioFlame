@@ -14,6 +14,32 @@ import {
 
 const STORAGE_LEVEL_ID = 'US-01'; 
 
+// Helper function to define the time range
+const calculateTimeRange = (filterPeriod) => {
+    const now = new Date();
+    let startTime = new Date(now);
+
+    switch (filterPeriod) {
+        case 'Hourly':
+            startTime.setHours(now.getHours( - 11));
+        case 'Daily':
+            startTime.setDate(now.getDate() - 1); // Last 24 hours
+            break;
+        case 'Weekly':
+            startTime.setDate(now.getDate() - 7); // Last 7 days
+            break;
+        case 'Monthly':
+            startTime.setMonth(now.getMonth() - 1); // Last 30 days
+            break;
+        case 'Yearly':
+            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
+            break;
+        default:
+            startTime.setDate(now.getDate() - 7); // Default to Weekly
+    }
+    return startTime.toISOString();
+};
+
 const formatTimeLabel = (timestamp) => {
     if (!timestamp) return '';
     const date = new Date(timestamp);
@@ -31,10 +57,13 @@ export default function GasStorageGraph({ data, filterPeriod, selectedDate }) {
       setLoading(true);
       setError(null);
       
+      const startTime = calculateTimeRange(filterPeriod); // Calculate start time
+
       const { data: fetchedData, error } = await supabase
         .from('sensorreading') 
         .select('value, timestamp')
         .eq('sensor_id', STORAGE_LEVEL_ID) 
+        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order('timestamp', { ascending: true }) 
         .limit(100); 
 
@@ -54,7 +83,7 @@ export default function GasStorageGraph({ data, filterPeriod, selectedDate }) {
       setLoading(false);
     }
     fetchGraphData();
-  }, [filterPeriod, selectedDate]);
+  }, [filterPeriod, selectedDate]); 
 
 
   const chartData = graphData.length > 0 ? graphData : [

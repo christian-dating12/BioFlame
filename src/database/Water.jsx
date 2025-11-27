@@ -1,53 +1,36 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; 
 
-// --- Component Definition ---
-
 export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
-  // State to hold the fetched water level value (distance in cm or percentage)
-  const [waterLevelDistance, setWaterLevelDistance] = useState(null);
+  const [totalWeight, setTotalWeight] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
-  // Assuming the raw reading is distance (e.g., in cm). 
-  // We can calculate the percentage full if we know the tank depth.
-  const TANK_DEPTH_CM = 150; // Example: Assume 150 cm deep tank
-  
-  // Calculate percentage full based on distance from top
-  const percentageFull = waterLevelDistance !== null
-    ? Math.max(0, Math.min(100, (1 - (waterLevelDistance / TANK_DEPTH_CM)) * 100))
-    : null;
-
-  // Value is displayed as a percentage, formatted to 1 decimal place.
-  const formattedValue = percentageFull !== null ? percentageFull.toFixed(1) : '—'; 
-  const statusColor = percentageFull !== null && percentageFull < 20 ? "#A3362E" : "#6C8E3E"; // Red if very low, Green otherwise
+  // ⚙️ CONFIG: Set your tank's maximum capacity in KG here.
+  // (e.g., if your tank holds 1000kg, put 1000).
+  const MAX_CAPACITY_KG = 170; 
 
   useEffect(() => {
-    async function getWaterLevel() {
+    // Function to calculate total weight from active table entries
+    async function getSlurryLevel() {
       setLoading(true);
       setError(null);
       
       try {
-        // Querying the 'sensorreading' table for the latest ultrasonic reading (US-01)
+        // Query the exact same data as your Table component
         const { data, error } = await supabase
-          .from('sensorreading') // Targeting the sensorreading table
-          .select('value') 
-          .eq('sensor_id', 'US-01') // Filtering for the Ultrasonic Sensor ID
-          .order('timestamp', { ascending: false }) // Get the latest reading
-          .limit(1)
-          .single(); // Expect a single row
+          .from('slurrylog')
+          .select('weight') 
+          .eq('transact_type', 'IN')
+          .not('release_date', 'is', null);
 
         if (error) {
-          console.error("Supabase Error fetching Water Level:", error);
+          console.error("Supabase Error fetching Slurry Level:", error);
           setError("Failed to load level data.");
-          setWaterLevelDistance(null);
-        } else if (data && data.value !== undefined) {
-          // Assuming 'value' is the distance measurement in cm
-          setWaterLevelDistance(data.value); 
         } else {
-            // Handle case where no data is returned
-            setWaterLevelDistance(null);
-            setError("No data available for US-01.");
+          // Sum up all the weights
+          const sum = data.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
+          setTotalWeight(sum);
         }
       } catch (e) {
         console.error("Fetch exception:", e);
@@ -56,30 +39,38 @@ export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
         setLoading(false);
       }
     }
-    getWaterLevel();
+
+    // 1. Fetch immediately on load
+    getSlurryLevel();
     
-    // Optional: Set up real-time subscription for live updates (requires RLS policy configuration)
-    // The following code is commented out as it requires proper RLS setup.
-    /*
+    // 2. Listen for changes in the 'slurrylog' table (Real-time)
     const subscription = supabase
-      .channel('water_level_changes')
+      .channel('slurry_level_updates')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'sensorreading', filter: `sensor_id=eq.US-01` },
-        (payload) => {
-            if (payload.new.value !== undefined) {
-                setWaterLevelDistance(payload.new.value);
-            }
+        { event: '*', schema: 'public', table: 'slurrylog' },
+        () => {
+            // When the table changes (add/edit/delete), re-fetch the sum
+            getSlurryLevel(); 
         }
       )
       .subscribe();
 
+    // Cleanup subscription when component unmounts
     return () => {
         supabase.removeChannel(subscription);
     };
-    */
+
   }, [filterPeriod, selectedDate]);
 
+  // Calculate percentage based on the defined Max Capacity
+  const percentageFull = Math.min(100, Math.max(0, (totalWeight / MAX_CAPACITY_KG) * 100));
+  
+  // Formatting
+  const formattedValue = percentageFull.toFixed(1); 
+  
+  // Visual Alert: Red if very low (< 20%), Green otherwise.
+  const statusColor = percentageFull < 20 ? "#A3362E" : "#6C8E3E";
 
   return (
     <div
@@ -103,22 +94,26 @@ export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
       {loading && <div style={{ color: "#6C8E3E" }}>Loading...</div>}
       {error && <div style={{ color: "red" }}>{error}</div>}
       
-      {/* Container for the large percentage number */}
-      <div
-        style={{
-          fontSize: "6em", 
-          fontWeight: "bold",
-          color: statusColor, 
-          lineHeight: "1.2",
-        }}
-      >
-        {formattedValue}
-      </div>
+      {!loading && !error && (
+        <>
+            {/* Large Percentage Display */}
+            <div
+                style={{
+                fontSize: "6em", 
+                fontWeight: "bold",
+                color: statusColor, 
+                lineHeight: "1.2",
+                }}
+            >
+                {formattedValue}
+            </div>
 
-      {/* Label indicating percentage and raw distance */}
-      <p style={{ color: "#aaa", marginTop: "10px", textAlign: "center" }}>
-        % Full ({waterLevelDistance !== null ? `${waterLevelDistance.toFixed(0)} cm remaining` : 'No reading'})
-      </p>
+            {/* Subtitle: Total Weight vs Capacity */}
+            <p style={{ color: "#aaa", marginTop: "10px", textAlign: "center" }}>
+                % Full ({totalWeight.toFixed(0)} kg / {MAX_CAPACITY_KG} kg)
+            </p>
+        </>
+      )}
     </div>
   );
 }

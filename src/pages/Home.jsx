@@ -1,7 +1,10 @@
 import React from "react";
 import Header from "../components/header";
 import Footer from "../components/footer"; // Imported the external Footer component
-import backgroundImage from "../assets/home.png"
+import backgroundImage from "../assets/home.png";
+import missionImage from "../assets/mission.png";
+import visionImage from "../assets/vision.png";
+
 
 const COLORS = {
   // --- Colors based on the images ---
@@ -344,7 +347,8 @@ export default function Home() {
                   borderRadius: '8px'
                 }}
               >
-                image
+              <img src={missionImage} alt="Mission" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            
               </div>
             </div>
     
@@ -468,7 +472,7 @@ export default function Home() {
                   borderRadius: '8px'
                 }}
               >
-                image
+                <img src={visionImage} alt="Vision Decor" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
             </div>
         </div>

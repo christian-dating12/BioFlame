@@ -1,114 +1,101 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; 
 
-// Mapping confirmed sensor ID for pH Level
 const PH_SENSOR_ID = 'PH-01'; 
 
-// Helper function to define the time range
 const calculateTimeRange = (filterPeriod) => {
     const now = new Date();
     let startTime = new Date(now);
-
     switch (filterPeriod) {
-        case 'Hourly':
-            startTime.setHours(now.getHours( - 11));
-        case 'Daily':
-            startTime.setDate(now.getDate() - 1); // Last 24 hours
-            break;
-        case 'Weekly':
-            startTime.setDate(now.getDate() - 7); // Last 7 days
-            break;
-        case 'Monthly':
-            startTime.setMonth(now.getMonth() - 1); // Last 30 days
-            break;
-        case 'Yearly':
-            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
-            break;
-        default:
-            startTime.setDate(now.getDate() - 7); // Default to Weekly
+        case 'Hourly': startTime.setHours(now.getHours( - 11)); break;
+        case 'Daily': startTime.setDate(now.getDate() - 1); break;
+        case 'Weekly': startTime.setDate(now.getDate() - 7); break;
+        case 'Monthly': startTime.setMonth(now.getMonth() - 1); break;
+        case 'Yearly': startTime.setFullYear(now.getFullYear() - 1); break;
+        default: startTime.setDate(now.getDate() - 7);
     }
     return startTime.toISOString();
 };
 
-
-export default function DataOverviewComponent({ filterPeriod, selectedDate }) {
+export default function AcidityComponent({ filterPeriod, selectedDate }) {
   const [displayValue, setDisplayValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const checkAndCreateAlert = async (value, readingId) => {
+      let alertType = null;
+
+      if (value < 6.5) {
+          alertType = 'Low_pH';
+      } else if (value > 8.0) {
+          alertType = 'High_pH';
+      }
+
+      if (alertType) {
+          const { count } = await supabase
+              .from('alertlog')
+              .select('*', { count: 'exact', head: true })
+              .eq('alert_type', alertType)
+              .eq('status', 'New');
+
+          if (count === 0) {
+              await supabase.from('alertlog').insert({
+                  timestamp: new Date().toISOString(),
+                  alert_type: alertType,
+                  sensor_id: PH_SENSOR_ID,
+                  reading_id: readingId,
+                  status: 'New'
+              });
+          }
+      }
+  };
 
   useEffect(() => {
     async function getPhLevel() {
       setLoading(true);
       setError(null);
-
       const startTime = calculateTimeRange(filterPeriod);
       
       const { data, error } = await supabase
-        .from('sensorreading') // Targeting the sensorreading table
-        .select('value, timestamp')
-        .eq('sensor_id', PH_SENSOR_ID) // Filtering for the PH-01 sensor
-        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
+        .from('sensorreading')
+        .select('value, reading_id')
+        .eq('sensor_id', PH_SENSOR_ID)
+        .gte('timestamp', startTime)
         .order('timestamp', { ascending: false })
         .limit(1);
 
       if (error) {
-        console.error("Supabase Error fetching pH Level data:", error);
-        setError("Data failed to load.");
-        setDisplayValue(0);
+        console.error("Error fetching pH:", error);
+        setError("Data failed.");
       } else {
-        // Find the latest value and explicitly parse it as a float
         const rawValue = data && data.length > 0 ? data[0].value : 0;
-        const latestValue = parseFloat(rawValue); 
+        const readingId = data && data.length > 0 ? data[0].reading_id : null;
+        const latestValue = parseFloat(rawValue) || 0;
         
-        // Handle NaN/Invalid parse by falling back to 0
-        setDisplayValue(isNaN(latestValue) ? 0 : latestValue);
+        setDisplayValue(latestValue);
+        if (readingId) checkAndCreateAlert(latestValue, readingId);
       }
       setLoading(false);
     }
     getPhLevel();
   }, [filterPeriod, selectedDate]); 
 
-  // Function to format the number
-  const formattedValue = typeof displayValue === 'number' ? displayValue.toFixed(2) : displayValue;
+  const formattedValue = displayValue.toFixed(2);
+  const valueColor = (displayValue < 6.5 || displayValue > 8.0) ? "#A3362E" : "#6C8E3E";
 
   return (
-    <div
-      style={{
-        backgroundColor: "#23320F",
-        borderRadius: "12px",
-        padding: "20px",
-        color: "white",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "340px", 
-        boxSizing: "border-box",
-      }}
-    >
-      <h3 style={{ marginBottom: "20px", textAlign: "center", color: "#ccc" }}>
-        pH Level
-      </h3>
-      
+    <div style={{ backgroundColor: "#23320F", borderRadius: "12px", padding: "20px", color: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "340px", boxSizing: "border-box" }}>
+      <h3 style={{ marginBottom: "20px", textAlign: "center", color: "#ccc" }}>pH Level</h3>
       {loading && <div style={{ color: "#6C8E3E" }}>Loading...</div>}
       {error && <div style={{ color: "red" }}>{error}</div>}
-      
-      {/* Container for the large number */}
-      <div
-        style={{
-          fontSize: "6em", 
-          fontWeight: "bold",
-          color: "#6C8E3E", 
-          lineHeight: "1.2",
-        }}
-      >
-        {formattedValue}
-      </div>
-
-      {/* Optional: A label indicating what the number represents */}
-      <p style={{ color: "#aaa", marginTop: "10px" }}>
-        Latest Recorded Value ({filterPeriod})
-      </p>
+      {!loading && !error && (
+        <>
+            <div style={{ fontSize: "6em", fontWeight: "bold", color: valueColor, lineHeight: "1.2" }}>
+                {formattedValue}
+            </div>
+            <p style={{ color: "#aaa", marginTop: "10px" }}> Latest Value </p>
+        </>
+      )}
     </div>
   );
 }

@@ -1,33 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 
-// Helper function to define the time range
-const calculateTimeRange = (filterPeriod) => {
-    const now = new Date();
-    let startTime = new Date(now);
-
-    switch (filterPeriod) {
-        case 'Hourly':
-            startTime.setHours(now.getHours( - 11));
-        case 'Daily':
-            startTime.setDate(now.getDate() - 1); // Last 24 hours
-            break;
-        case 'Weekly':
-            startTime.setDate(now.getDate() - 7); // Last 7 days
-            break;
-        case 'Monthly':
-            startTime.setMonth(now.getMonth() - 1); // Last 30 days
-            break;
-        case 'Yearly':
-            startTime.setFullYear(now.getFullYear() - 1); // Last 365 days
-            break;
-        default:
-            startTime.setDate(now.getDate() - 7); // Default to Weekly
-    }
-    return startTime.toISOString();
-};
-
-
 const GasQualityComponent = ({ filterPeriod, selectedDate }) => {
   const [rawGas, setRawGas] = useState({ ch4: 0, co2: 0 });
   const [storedGas, setStoredGas] = useState({ ch4: 0, co2: 0 });
@@ -40,14 +13,12 @@ const GasQualityComponent = ({ filterPeriod, selectedDate }) => {
   const STORED_CH4_ID = 'CH4-STO';
   const STORED_CO2_ID = 'CO2-STO';
 
-  // Helper: fetch latest sensor value within the time range
-  const fetchSensorValue = async (sensorId, startTime) => {
+  const fetchSensorValue = async (sensorId) => {
     try {
       const { data, error } = await supabase
         .from('sensorreading')
         .select('value')
         .eq('sensor_id', sensorId)
-        .gte('timestamp', startTime) // Filter records greater than or equal to startTime
         .order('timestamp', { ascending: false })
         .limit(5);
 
@@ -67,15 +38,13 @@ const GasQualityComponent = ({ filterPeriod, selectedDate }) => {
     const fetchGasData = async () => {
       setLoading(true);
       setError(null);
-      
-      const startTime = calculateTimeRange(filterPeriod);
 
       try {
         const [rawCh4, rawCo2, storedCh4, storedCo2] = await Promise.all([
-          fetchSensorValue(RAW_CH4_ID, startTime),
-          fetchSensorValue(RAW_CO2_ID, startTime),
-          fetchSensorValue(STORED_CH4_ID, startTime),
-          fetchSensorValue(STORED_CO2_ID, startTime),
+          fetchSensorValue(RAW_CH4_ID),
+          fetchSensorValue(RAW_CO2_ID),
+          fetchSensorValue(STORED_CH4_ID),
+          fetchSensorValue(STORED_CO2_ID),
         ]);
 
         setRawGas({ ch4: rawCh4, co2: rawCo2 });
@@ -89,9 +58,16 @@ const GasQualityComponent = ({ filterPeriod, selectedDate }) => {
     };
 
     fetchGasData();
-  }, [filterPeriod, selectedDate]); 
+  }, [filterPeriod, selectedDate]);
 
-  const getBarWidth = (value) => `${Math.min(value, 100)}%`;
+  // BAR WIDTH: 10,000 ppm = 100% width
+  const getBarWidth = (value) => `${Math.min((value / 10000) * 100, 100)}%`;
+
+  // DISPLAY TEXT: Convert Raw Value (ppm) to Percentage of 10k Limit
+  const formatAsPercent = (value) => {
+    const percent = (value / 10000) * 100;
+    return `${percent.toFixed(2)}%`; // e.g. "4.00%"
+  };
 
   if (loading)
     return (
@@ -113,34 +89,55 @@ const GasQualityComponent = ({ filterPeriod, selectedDate }) => {
 
       <div style={styles.row}>
         {/* Raw Gas Quality */}
-        <GasBarSection title="Raw Gas Quality (Digester)" gas={rawGas} getBarWidth={getBarWidth} />
+        <GasBarSection 
+          title="Raw Gas Quality (Digester)" 
+          gas={rawGas} 
+          getBarWidth={getBarWidth} 
+          formatAsPercent={formatAsPercent}
+        />
 
         {/* Divider */}
         <div style={styles.divider} />
 
         {/* Stored Gas Quality */}
-        <GasBarSection title="Gas Storage Quality" gas={storedGas} getBarWidth={getBarWidth} />
+        <GasBarSection 
+          title="Gas Storage Quality" 
+          gas={storedGas} 
+          getBarWidth={getBarWidth} 
+          formatAsPercent={formatAsPercent}
+        />
       </div>
     </div>
   );
 };
 
 // Subcomponent for each gas section
-const GasBarSection = ({ title, gas, getBarWidth }) => (
+const GasBarSection = ({ title, gas, getBarWidth, formatAsPercent }) => (
   <div style={{ flex: 1, textAlign: 'center', padding: '0 15px' }}>
     <div style={styles.sectionTitle}>{title}</div>
 
-    {/* Bars */}
-    <div style={styles.barContainer}>
-      <div style={{ ...styles.bar, width: getBarWidth(gas.ch4), backgroundColor: '#DDB7A0', color: '#000' }}>CH₄</div>
-      <div style={{ ...styles.bar, width: getBarWidth(gas.co2), backgroundColor: '#A3362E', color: '#fff' }}>CO₂</div>
+    {/* --- CH4 BAR --- */}
+    <div style={styles.singleBarContainer}>
+        {/* Label Centered in the Range */}
+        <div style={styles.barLabel}>CH₄</div>
+        {/* The Filled Bar */}
+        <div style={{ ...styles.barFill, width: getBarWidth(gas.ch4), backgroundColor: '#DDB7A0' }} />
     </div>
+    {/* Value below bar */}
+    <div style={styles.valueText}>{formatAsPercent(gas.ch4)}</div>
 
-    {/* Percentages */}
-    <div style={styles.percentRow}>
-      <div style={{ ...styles.percent, color: '#333' }}>{gas.ch4.toFixed(1)}%</div>
-      <div style={{ ...styles.percent, color: '#FF0000' }}>{gas.co2.toFixed(1)}%</div>
+    {/* Spacer */}
+    <div style={{ height: '15px' }}></div>
+
+    {/* --- CO2 BAR --- */}
+    <div style={styles.singleBarContainer}>
+        <div style={styles.barLabel}>CO₂</div>
+        <div style={{ ...styles.barFill, width: getBarWidth(gas.co2), backgroundColor: '#A3362E' }} />
     </div>
+    <div style={{ ...styles.valueText, color: '#FF0000' }}>{formatAsPercent(gas.co2)}</div>
+
+    {/* Explanatory Note */}
+    <p style={styles.limitNote}>(10,000 ppm = 100%)</p>
   </div>
 );
 
@@ -154,41 +151,71 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '340px',
+    minHeight: '340px', // Ensure consistent height
     boxSizing: 'border-box',
   },
   title: { fontSize: '18px', fontWeight: 'bold', marginBottom: '20px', color: '#333' },
   row: {
     display: 'flex',
     justifyContent: 'space-around',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     width: '100%',
     flexGrow: 1,
   },
   divider: {
     width: '1px',
-    height: '80px',
+    height: '200px',
     backgroundColor: '#F8F4E3',
-    margin: '0 20px',
+    margin: '0 10px',
   },
-  sectionTitle: { fontSize: '14px', fontWeight: '500', marginBottom: '10px', color: '#555' },
-  barContainer: {
-    display: 'flex',
-    justifyContent: 'center',
-    height: '40px',
+  sectionTitle: { fontSize: '14px', fontWeight: '500', marginBottom: '15px', color: '#555' },
+  
+  // Track Container (The Gray Bar)
+  singleBarContainer: {
+    position: 'relative', 
+    width: '100%',
+    height: '30px',
+    backgroundColor: '#f0f0f0', 
     borderRadius: '4px',
     overflow: 'hidden',
   },
-  bar: {
+  
+  // The Colored Fill
+  barFill: {
+    height: '100%',
+    transition: 'width 0.5s ease-in-out',
+    zIndex: 1, 
+  },
+  
+  // The Centered Label
+  barLabel: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     fontSize: '12px',
     fontWeight: 'bold',
-    whiteSpace: 'nowrap',
+    color: '#333', 
+    zIndex: 2, // Ensures text is on top of the fill
+    top: 0,
+    left: 0,
   },
-  percentRow: { display: 'flex', justifyContent: 'center', width: '100%', gap: '10px', marginTop: '5px' },
-  percent: { fontSize: '14px', fontWeight: 'bold' },
+  
+  valueText: {
+    fontSize: '14px',
+    fontWeight: 'bold',
+    marginTop: '5px',
+    color: '#333',
+  },
+  
+  limitNote: {
+    fontSize: '11px',
+    color: '#888',
+    marginTop: '10px',
+    fontStyle: 'italic',
+  }
 };
 
 export default GasQualityComponent;

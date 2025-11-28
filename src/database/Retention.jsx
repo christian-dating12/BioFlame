@@ -1,91 +1,59 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../supabaseClient"; 
 
-// Assuming the retention time is stored in the 'digester' table
-const DIGESTER_TABLE = 'digester'; 
-const RETENTION_COLUMN = 'retention_time';
-
-// Helper function to define the time range (included for consistency, though unused here)
-const calculateTimeRange = (filterPeriod, selectedDate) => {
-    // Current date/time for calculating backward periods, or if no date is provided.
-    const now = new Date();
-    let startTime = new Date(now);
-    let endTime = new Date(now);
-    
-    // --- 1. Handle Hourly Filter (Highest Priority) ---
-    if (filterPeriod === 'Hourly' && selectedDate && selectedDate.includes('|')) {
-        const parts = selectedDate.split('|');
-        const datePart = parts[0];
-        const hour = parseInt(parts[1], 10); 
-        startTime = new Date(`${datePart}T00:00:00Z`);
-        startTime.setUTCHours(hour);
-        endTime = new Date(startTime);
-        endTime.setUTCHours(hour + 1);
-        return { startTime: startTime.toISOString(), endTime: endTime.toISOString() };
-    }
-
-    // --- 2. Set the End Time based on the selectedDate (if provided) ---
-    if (selectedDate && !selectedDate.includes('|')) {
-        const dateParts = selectedDate.split('-'); 
-        endTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], 23, 59, 59, 999);
-    } 
-
-    // --- 3. Calculate the Start Time based on filterPeriod relative to endTime ---
-    startTime = new Date(endTime); 
-    switch (filterPeriod) {
-        case 'Daily':
-            startTime.setDate(startTime.getDate() - 1); 
-            break;
-        case 'Weekly':
-            startTime.setDate(startTime.getDate() - 7); 
-            break;
-        case 'Monthly':
-            startTime.setMonth(startTime.getMonth() - 1); 
-            break;
-        case 'Yearly':
-            startTime.setFullYear(startTime.getFullYear() - 1); 
-            break;
-    }
-    
-    return { startTime: startTime.toISOString(), endTime: endTime.toISOString() };
-};
-
-
-export default function DataOverviewComponent({ data, filterPeriod, selectedDate }) {
-  // Use state to hold the retention value
+export default function Retention({ filterPeriod, selectedDate }) {
   const [displayValue, setDisplayValue] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function getRetentionTime() {
+    async function getRetentionDaysLeft() {
       setLoading(true);
       setError(null);
       
-      // Fetching the retention_time from the 'digester' table
+      // 1. Fetch the Release Date of the latest active batch from slurrylog
       const { data, error } = await supabase
-        .from(DIGESTER_TABLE) 
-        .select(RETENTION_COLUMN)
-        .limit(1); // Assuming you only need the retention time from one record
+        .from('slurrylog') 
+        .select('release_date')
+        .eq('transact_type', 'IN')
+        .not('release_date', 'is', null) 
+        .order('timestamp', { ascending: false }) // Get the most recent one
+        .limit(1);
 
       if (error) {
         console.error("Supabase Error fetching Retention data:", error);
         setError("Failed to load data.");
         setDisplayValue(0);
       } else {
-        // Retrieve the value, defaulting to 0 if data is missing
-        const rawValue = data && data.length > 0 ? data[0][RETENTION_COLUMN] : 0;
-        const latestValue = parseFloat(rawValue); 
-        
-        setDisplayValue(isNaN(latestValue) ? 0 : latestValue);
+        if (data && data.length > 0) {
+            const releaseDate = data[0].release_date;
+            
+            // 2. Dynamic Calculation: Target Date - Today
+            // This ensures it matches the logic in your Table component
+            const today = new Date();
+            const targetDate = new Date(releaseDate);
+            
+            // Reset hours to ensure clean day calculation
+            targetDate.setHours(0, 0, 0, 0); 
+            // We don't reset 'today' hours to keep it relative to current moment, 
+            // or we can match Table.jsx exactly:
+            // today.setHours(0,0,0,0); // Optional: Uncomment to ignore time of day
+
+            const diffTime = targetDate.getTime() - today.getTime();
+            const daysRemaining = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            setDisplayValue(daysRemaining);
+        } else {
+            // Default if no active batch exists
+            setDisplayValue(0);
+        }
       }
       setLoading(false);
     }
-    getRetentionTime();
-  }, [filterPeriod, selectedDate]);
-
-  // Format the number to a whole number (integer) since retention time is 'int4'
-  const formattedValue = displayValue.toFixed(0); 
+    
+    getRetentionDaysLeft();
+    
+  }, [filterPeriod, selectedDate]); 
 
   return (
     <div
@@ -103,28 +71,31 @@ export default function DataOverviewComponent({ data, filterPeriod, selectedDate
       }}
     >
       <h3 style={{ marginBottom: "20px", textAlign: "center", color: "#ccc" }}>
-        Retention (Days)
+        Retention (Days Left)
       </h3>
       
       {loading && <div style={{ color: "#6C8E3E" }}>Loading...</div>}
       {error && <div style={{ color: "red" }}>{error}</div>}
 
-      {/* Container for the large number */}
-      <div
-        style={{
-          fontSize: "6em", 
-          fontWeight: "bold",
-          color: "#6C8E3E", 
-          lineHeight: "1.2",
-        }}
-      >
-        {formattedValue}
-      </div>
+      {!loading && !error && (
+        <>
+            <div
+                style={{
+                fontSize: "6em", 
+                fontWeight: "bold",
+                // Visual Alert: Red if overdue (negative), Green if safe
+                color: displayValue < 0 ? "#A3362E" : "#6C8E3E", 
+                lineHeight: "1.2",
+                }}
+            >
+                {displayValue}
+            </div>
 
-      {/* Optional: A label indicating what the number represents */}
-      <p style={{ color: "#aaa", marginTop: "10px" }}>
-        Latest Recorded Value ({filterPeriod})
-      </p>
+            <p style={{ color: "#aaa", marginTop: "10px" }}>
+                Days Remaining
+            </p>
+        </>
+      )}
     </div>
   );
 }

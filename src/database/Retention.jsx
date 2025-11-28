@@ -29,7 +29,6 @@ const calculateTimeRange = (filterPeriod, selectedDate) => {
         const dateParts = selectedDate.split('-'); 
         endTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], 23, 59, 59, 999);
     } 
-    // If selectedDate is empty, endTime remains 'now'.
 
     // --- 3. Calculate the Start Time based on filterPeriod relative to endTime ---
     startTime = new Date(endTime); 

@@ -10,16 +10,13 @@ const calculateTimeRange = (filterPeriod, selectedDate) => {
     
     // --- 1. Handle Hourly Filter (Highest Priority) ---
     if (filterPeriod === 'Hourly' && selectedDate && selectedDate.includes('|')) {
-        // Format of selectedDate is "YYYY-MM-DD|H" (e.g., "2025-11-28|10")
         const parts = selectedDate.split('|');
         const datePart = parts[0];
-        const hour = parseInt(parts[1], 10); // hour is 0-11
+        const hour = parseInt(parts[1], 10); 
 
-        // Start time is YYYY-MM-DD HH:00:00Z
         startTime = new Date(`${datePart}T00:00:00Z`);
         startTime.setUTCHours(hour);
 
-        // End time is YYYY-MM-DD (H+1):00:00Z
         endTime = new Date(startTime);
         endTime.setUTCHours(hour + 1);
 
@@ -31,17 +28,13 @@ const calculateTimeRange = (filterPeriod, selectedDate) => {
 
     // --- 2. Set the End Time based on the selectedDate (if provided) ---
     if (selectedDate && !selectedDate.includes('|')) {
-        // Set End Time to the end of the day specified in selectedDate
-        const dateParts = selectedDate.split('-'); // Assumes YYYY-MM-DD format from input type='date'
-        
-        // Use the date part to construct the end of that day (23:59:59.999)
+        const dateParts = selectedDate.split('-'); 
         // Note: Months in JS Date are 0-indexed (Jan=0, Dec=11)
         endTime = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], 23, 59, 59, 999);
     } 
-    // If selectedDate is empty, endTime remains 'now'.
 
     // --- 3. Calculate the Start Time based on filterPeriod relative to endTime ---
-    startTime = new Date(endTime); // Base calculation on the calculated endTime
+    startTime = new Date(endTime); 
 
     switch (filterPeriod) {
         case 'Daily':
@@ -64,11 +57,9 @@ const calculateTimeRange = (filterPeriod, selectedDate) => {
     };
 };
 
-
 export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
   const [totalWeight, setTotalWeight] = useState(0);
-  // Fetched dynamically from digester table
-  const [maxCapacity, setMaxCapacity] = useState(1000); 
+  const [maxCapacity, setMaxCapacity] = useState(170); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -93,12 +84,11 @@ export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
                       message: alertMessage,
                       severity: 'High',
                       status: 'New',
-                      source_id: 'D-01' // Assuming 'D-01' is the digester source
+                      source_id: 'D-01' 
                   });
               if (error) console.error("Failed to create alert:", error);
           }
       }
-      // Note: Logic to clear the alert (e.g., if level drops below 95%) is omitted for simplicity but is necessary for a full system.
   };
 
   const fetchMaxCapacity = async () => {
@@ -108,24 +98,28 @@ export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
           .eq('digester_id', 'D-01')
           .single();
 
-      if (error || !data) {
+      if (error || !data || data.max_capacity === null) {
           console.error("Error fetching max capacity:", error);
           setMaxCapacity(1000); 
+          return 1000;
       } else {
-          setMaxCapacity(parseFloat(data.max_capacity) || 1000); 
+          // Use Math.max to prevent division by zero if capacity is somehow 0
+          const capacity = Math.max(1, parseFloat(data.max_capacity));
+          setMaxCapacity(capacity); 
+          return capacity;
       }
   }
 
   useEffect(() => {
-    // 1. Fetch Capacity first
-    fetchMaxCapacity();
-
-    // 2. Function to calculate HISTORICAL BALANCE
+    // 1. Function to calculate HISTORICAL BALANCE and trigger alert
     async function getHistoricalSlurryBalance() {
       setLoading(true);
       setError(null);
       
       try {
+        // Fetch capacity first to ensure the alert calculation is accurate
+        const currentMaxCapacity = await fetchMaxCapacity(); 
+
         const { endTime } = calculateTimeRange(filterPeriod, selectedDate);
         
         // --- 1. Fetch Inputs (All 'IN' transactions BEFORE endTime) ---
@@ -146,33 +140,30 @@ export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
           console.error("Supabase Error fetching Historical Slurry Balance:", inputError || outputError);
           setError("Failed to load historical balance data.");
           setTotalWeight(0);
-          return 0; // Return 0 if fetch fails
+          return; 
         } else {
           const inputSum = inputData.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
           const outputSum = outputData.reduce((acc, item) => acc + (parseFloat(item.weight) || 0), 0);
           
           const balance = Math.max(0, inputSum - outputSum); 
           setTotalWeight(balance);
-          return balance; // Return balance for alert check
+
+          // Trigger alert check immediately
+          const rawPercentage = (balance / currentMaxCapacity) * 100;
+          createSlurryAlert(rawPercentage);
         }
       } catch (e) {
         console.error("Fetch exception:", e);
         setError("An unexpected error occurred.");
-        return 0;
       } finally {
         setLoading(false);
       }
     }
 
-    getHistoricalSlurryBalance().then(balance => {
-        // Calculate the raw percentage (potentially > 100%)
-        const rawPercentage = (balance / maxCapacity) * 100;
-        
-        // Trigger alert check AFTER data is fetched and capacity is known
-        createSlurryAlert(rawPercentage);
-    });
+    getHistoricalSlurryBalance();
     
-  }, [filterPeriod, selectedDate, maxCapacity]); // maxCapacity included to re-run calculation/alert if capacity changes
+    // The Active Alerts component (Alert.jsx) will automatically update when the alertlog changes.
+  }, [filterPeriod, selectedDate]); 
 
   // Calculate percentage for display (capped at 100.0%)
   const percentageFull = Math.min(100, Math.max(0, (totalWeight / maxCapacity) * 100));

@@ -86,7 +86,7 @@ export default function TemperatureComponent({ filterPeriod, selectedDate }) {
   }, [filterPeriod, selectedDate]); 
 
   const formattedValue = displayValue.toFixed(2);
-  const valueColor = (displayValue < 30 || displayValue > 40) ? "#A3362E" : "#6C8E3E";
+  const valueColor = (displayValue < 25 || displayValue > 40) ? "#A3362E" : "#6C8E3E";
 
   return (
     <div style={{ backgroundColor: "#23320F", borderRadius: "12px", padding: "20px", color: "white", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "340px", boxSizing: "border-box" }}>

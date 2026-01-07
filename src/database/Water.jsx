@@ -137,7 +137,7 @@ export default function WaterLevelComponent({ filterPeriod, selectedDate }) {
   const formattedValue = percentageFull.toFixed(1); 
   
   // Visual Color Change for the Card itself
-  const statusColor = (percentageFull < 20 || percentageFull >= 90) ? "#A3362E" : "#6C8E3E";
+  const statusColor = (percentageFull < 10 || percentageFull >= 90) ? "#A3362E" : "#6C8E3E";
 
   return (
     <div
